@@ -39,7 +39,7 @@
                                     $sID = $subjectID;
                                 }
 
-                                echo form_dropdown("subjectID", $array2, set_value("subjectID"), "id='subjectID' class='form-control'");
+                                echo form_dropdown("subjectID", $array2, set_value("subjectID", $subjectID), "id='subjectID' class='form-control'");
                             ?>
                         </div>
                         <span class="col-sm-4 control-label">
@@ -57,7 +57,7 @@
                             <?=$this->lang->line("routine_start_time")?><span class="required">必須</span>
                         </label>
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="start_time" name="start_time" value="<?=set_value('start_time')?>" >
+                            <input type="text" class="form-control" id="start_time" name="start_time" value="<?=set_value('start_time', $start_time)?>" >
                         </div>
                         <span class="col-sm-4 control-label">
                             <?php echo form_error('start_time'); ?>
@@ -74,7 +74,7 @@
                             <?=$this->lang->line("routine_end_time")?><span class="required">必須</span>
                         </label>
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="end_time" name="end_time" value="<?=set_value('end_time')?>" >
+                            <input type="text" class="form-control" id="end_time" name="end_time" value="<?=set_value('end_time', $end_time)?>" >
                         </div>
                         <span class="col-sm-4 control-label">
                             <?php echo form_error('end_time'); ?>
@@ -91,7 +91,7 @@
                             <?=$this->lang->line("routine_room")?>
                         </label>
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" id="room" name="room" value="<?=set_value('room')?>" >
+                            <input type="text" class="form-control" id="room" name="room" value="<?=set_value('room', $room)?>" >
                         </div>
                         <span class="col-sm-4 control-label">
                             <?php echo form_error('room'); ?>
@@ -107,7 +107,7 @@
                             <?=$this->lang->line("routine_color")?>
                         </label>
                         <div class="col-sm-6">
-                            <input type="text" id="color" name = "color" class="form-control" value="#00ffff">
+                            <input type="text" id="color" name = "color" class="form-control" value="<?=set_value('color', $color)?>">
                         </div>
                         <span class="col-sm-4 control-label">
                             <?php echo form_error('color'); ?>
@@ -127,17 +127,29 @@
                                 $array = array_merge(array(
                                     '' => $this->lang->line("routine_day_select")
                                 ),$us_days);
-                                echo form_dropdown("day", $array, set_value("day",$cycle), "id='day' class='form-control' disabled");
+                                echo form_dropdown("day", $array, set_value("day", $day), "id='day' class='form-control' disabled");
                             ?>
                         </div>
                         <span class="col-sm-4 control-label">
                             <?php echo form_error('days_input'); ?>
                         </span>
                     </div>
+                    <div class='form-group'>
+                        <label for="day" class="col-sm-2 control-label">
+                            对象日期
+                        </label>
+                        <div class="col-sm-6">
+                            <?php
+                                foreach ($routines as $value) {
+                                    echo $value->date.' ('.$value->start_time.' - '.$value->end_time.') '.'<br>';
+                                }
+                            ?>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-8">
-                            <input type="submit" class="btn btn-success" value="<?=$this->lang->line("add_routine")?>" >
+                            <input type="submit" class="btn btn-success" value="<?=$this->lang->line("update_batch_routine")?>" >
                         </div>
                     </div>
                 </form>
@@ -175,163 +187,6 @@
 
 
 <script type="text/javascript">
-// 画面临时保存用的休日列表
-var holidays = [''];
-$('#classesID').change(function() {
-    var classesID = $(this).val();
-    if(classesID == 0) {
-        $('#sectionID').val(0);
-        $('#subjectID').val(0);
-    } else {
-        $.ajax({
-            type: 'POST',
-            url: "<?=base_url('routine/subjectcall')?>",
-            data: "id=" + classesID,
-            dataType: "html",
-            success: function(data) {
-               $('#subjectID').html(data)
-            }
-        });
-
-        $.ajax({
-            type: 'POST',
-            url: "<?=base_url('routine/sectioncall')?>",
-            data: "id=" + classesID,
-            dataType: "html",
-            success: function(data) {
-               $('#sectionID').html(data)
-            }
-        });
-    }
-
-});
 $('#start_time').timepicker({ 'showMeridian': false });
 $('#end_time').timepicker({ 'showMeridian': false });
-// 课程计划开始日的日期选择框追加
-$('#start_day').datepicker({
-    format: "yyyy-mm-dd",
-    startView: 3,
-    language: "zh-CN",
-    autoclose: true
-});
-function get_holiday_list(){
-    var dayArray = [];
-    for (var index in days) {
-        if(!days[index]){
-            continue;
-        }
-        dayArray.push(index);
-    }
-    $.ajax({
-        type: 'POST',
-        url: "<?=base_url('routine/get_holiday_list')?>",
-        data: {
-            start_day:$('#start_day').val(),
-            count:$('#count').val(),
-            cycle:$('#cycle').val(),
-            holiday:holidays,
-            days:dayArray
-        },
-        dataType: "html",
-        success: function(data) {
-            $('#holiday').html(data);
-            $('#holidays').empty();
-            for (var index in holidays) {
-                if(!holidays[index]){
-                    continue;
-                }
-                $('#holidays').append("<button type='button' class='btn btn-success btn-xs' onclick='removeHoliday(this)' style='margin: 5px'>"
-                + holidays[index] + "<span class='glyphicon glyphicon-remove'></span></button>");
-                $('#holidays').append("<input type='hidden' name='holidays_input[]' value='"
-                + holidays[index] + "'/>");
-            }
-        }
-    });
-}
-// 课程开始日的变更事件绑定
-$('#start_day').change(function() {
-    clear_holiday();
-    get_holiday_list();
-});
-$('#count').change(function() {
-    clear_holiday();
-    get_holiday_list();
-});
-$('#cycle').change(function() {
-    checkDays();
-    clear_holiday();
-    get_holiday_list();
-});
-function clear_holiday(){
-    $('#holiday').empty();
-    holidays = [''];
-}
-// 休息日选择的时候触发的操作
-$('#holiday').change(function() {
-     if(holidays.toString().indexOf($('#holiday').val()) < 0){
-         holidays.push($('#holiday').val());
-     }else{
-         var msg = $('#holiday').val();
-         if(msg != ''){
-            alert(msg + "已在休息日中，请选择其它日期！");
-            return false;
-         }
-     }
-     get_holiday_list();
-});
-// 画面初始化时，显示默认的待选休日
-$().ready(
-    function(){
-        get_holiday_list();       
-    }
-);
-function removeHoliday(obj){
-    for (var i=0; i < holidays.length; i++) {
-        if(holidays[i] == $(obj).text()){
-            holidays.splice(i,1);
-            $(obj).next().remove();
-            $(obj).remove();
-            $('#holiday').change();
-            break;
-        }
-    }
-}
-var days = [''];
-$('#day').change(function(){
-    days[$('#day').val()] = $('#day option:selected').text();
-    checkDays();
-    $('#days').empty();
-    $('#day').val('');
-    for (var index in days) {
-        if(!days[index]){
-            continue;
-        }
-        $('#days').append("<button type='button' class='btn btn-success btn-xs' onclick='removeday(this)' style='margin: 5px'>"
-            + days[index] + "<span class='glyphicon glyphicon-remove'></span></button>");
-            $('#days').append("<input type='hidden' name='days_input[]' value='"
-            + index + "'/>");
-    }
-    clear_holiday();
-    get_holiday_list();
-});
-function removeday(obj){
-    days[$(obj).next().val()] = undefined;
-    $(obj).next().remove();
-    $(obj).remove();
-    checkDays();
-}
-function checkDays(){
-    var cnt = 0;
-    for (var index in days) {
-        if(!days[index]){
-            continue;
-        }
-        cnt++;
-    }
-    if(cnt == Number($('#cycle').val())){
-        $('#day').prop('disabled', true);
-    }else{
-        $('#day').prop('disabled', false);
-    }
-}
 </script>

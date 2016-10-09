@@ -28,6 +28,7 @@ $lang['view'] = "查看详情";
 $lang['edit'] = "编辑";
 $lang['delete'] = "删除";
 $lang['add_routine'] = "添加课程";
+$lang['update_batch_routine'] = "批量更新课程";
 $lang['update_routine'] = "更新课程";
 $lang['sunday'] = "星期日";
 $lang['monday'] = "星期一";

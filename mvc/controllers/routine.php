@@ -293,56 +293,46 @@ class Routine extends Admin_Controller {
 	public function edit_batch() {
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" || $usertype == "TeacherManager" || $usertype == "Salesman"|| $usertype == "Receptionist") {
-			$this->data['classes'] = $this->classes_m->get_classes_1();
-			$classesID = $this->input->post("classesID");
-			// if($classesID != 0) {
-			// 	$this->data['subjects'] = $this->subject_m->get_order_by_subject(array('classesID' =>$classesID));
-			// 	$this->data['sections'] = $this->section_m->get_order_by_section(array("classesID" => $classesID));
-			// } else {
-			// 	$this->data['subjects'] = "empty";
-			// 	$this->data['sections'] = "empty";
-			// }
+			$subjectID = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
+			$day = htmlentities(mysql_real_escape_string($this->uri->segment(4)));
+			$room = htmlentities(mysql_real_escape_string($this->uri->segment(5)));
+			$where = array(
+				'1' => $subjectID,
+				'2' => $day
+			);
+			// $this->data['routines'] = $this->routine_m->get_routine_group_by_sub();
+			$this->data['routines'] = $this->routine_m->get_join_all_wsection($subjectID, $day);
+			if($this->data['routines'] && count($this->data['routines']) > 1){
+				$this->data['start_time'] = $this->data['routines'][0]->start_time;
+				$this->data['end_time'] = $this->data['routines'][0]->end_time;
+				$this->data['color'] = $this->data['routines'][0]->color;
+			}else{
+				$this->data['start_time'] = Date(Y-m-d);
+				$this->data['end_time'] = Date(Y-m-d);
+				$this->data['color'] = '#00ffff';
+			}
 			$this->data['subjects'] = $this->subject_m->get_order_by_subject();
-			$this->data['subjectID'] = 0;
-			$this->data['sectionID'] = 0;
-			$this->data['count'] = 10;
-			$this->data['cycle'] = 1;
-			$this->data['start_day'] = date("Y-m-d");
+			$this->data['subjectID'] = $subjectID;
+			$this->data['day'] = $day;
+			$this->data['room'] = $room;
 			if($_POST) {
 				$days = $this->input->post("days_input");
 				$rules = $this->rules();
-				array_push($rules,array(
-					'field' => 'start_day',
-					'label' => $this->lang->line("routine_start_day"),
-					'rules' => 'trim|required|xss_clean'
-					),array(
-					'field' => 'days_input',
-					'label' => $this->lang->line("routine_day"),
-					'rules' => 'xss_clean|callback_checkDays'
-					)
-				);
 				$this->form_validation->set_rules($rules);
 				if ($this->form_validation->run() == FALSE) {
 					$this->data['form_validation'] = validation_errors();
 					$this->data["subview"] = "routine/edit_batch";
 					$this->load->view('_layout_main', $this->data);
 				} else {
-					$i = 0;
-					foreach ($this->holiday_list($this->input->post("holidays_input"), $days) as $holiday => $tmp) {
-						$time = strtotime($holiday);
-						$week   =  date( "D",$time);
-						$array = array(
-						"classesID" => $this->input->post("classesID"),
-						"sectionID" => $this->input->post("sectionID"),
-						"subjectID" => $this->input->post("subjectID"),
-						"date" => $holiday,
-						"day" => $week,
-						"start_time" => $this->fixTimeStr($this->input->post("start_time")),
-						"end_time" => $this->fixTimeStr($this->input->post("end_time")),
-						"room" => $this->input->post("room"),
-						"color" => $this->input->post("color")
+					foreach ($this->data['routines'] as $value) {
+						$update_data = array(
+							"subjectID" => $this->input->post("subjectID"),
+							"start_time" => $this->fixTimeStr($this->input->post("start_time")),
+							"end_time" => $this->fixTimeStr($this->input->post("end_time")),
+							"room" => $this->input->post("room"),
+							"color" => $this->input->post("color")
 						);
-						$this->routine_m->insert_routine($array);
+						$this->routine_m->update_routine($update_data, $value->routineID);
 					}
 					$this->session->set_flashdata('success', $this->lang->line('menu_success'));
 					redirect(base_url("routine/index"));
