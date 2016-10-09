@@ -28,7 +28,7 @@ class Invoice extends Admin_Controller {
 		$this->load->model("payment_settings_m");
 		$language = $this->session->userdata('lang');
 		$this->lang->load('invoice', $language);
-		require_once(APPPATH."libraries/Omnipay/vendor/autoload.php");
+	//	require_once(APPPATH."libraries/Omnipay/vendor/autoload.php");
 	}
 
 	public function index() {
