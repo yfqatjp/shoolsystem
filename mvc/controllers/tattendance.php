@@ -426,9 +426,13 @@ class Tattendance extends Admin_Controller {
 		if($usertype == "Admin") {
 			$tattendanceID = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 			if((int)$tattendanceID){
+				
+				$tattendance = $this->tattendance_m->get($tattendanceID);
+				
 				$this->tattendance_m->delete_tattendance($tattendanceID);
 				$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-				redirect(base_url("tattendance/index/1"));
+				
+				redirect(base_url("tattendance/detaile/".$tattendance->teacherID));
 			} else {
 				$this->data["subview"] = "error";
 				$this->load->view('_layout_main', $this->data);

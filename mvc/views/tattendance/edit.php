@@ -35,7 +35,7 @@
                                 }
                             ?>
                             
-                              <input type="text" class="form-control" name="teacherName" id="teacherName" value="<?=set_value("teacherName", $array[$teacher->teacherID])?>" readonly="readonly">
+                              <input type="text" class="form-control" name="teacherName" id="teacherName" value="<?=set_value("teacherName", $array[$tattendance->teacherID])?>" readonly="readonly">
                             
                         </div>
                         <span class="col-sm-4 control-label">
