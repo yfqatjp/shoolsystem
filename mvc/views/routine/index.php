@@ -82,6 +82,7 @@
                                                                     echo $routine->subject.'<br/>';
                                                                     echo $routine->room.'<br/>';
                                                                     echo btn_view('routine/routinesbyclass/'.$routine->subjectID.'/'.$routine->day, $this->lang->line('view'));
+                                                                    echo btn_edit('routine/edit_batch/'.$routine->subjectID.'/'.$routine->day, $this->lang->line('edit'));
                                                                     echo btn_delete('routine/delete_by_subjectID/'.$routine->subjectID, $this->lang->line('delete'));
                                                                     echo '</span>';
                                                                  //   echo '</div>';
