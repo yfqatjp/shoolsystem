@@ -267,21 +267,33 @@ class Tattendance extends Admin_Controller {
 
 			$this->data['subjectID'] = 0;
 			$this->data['sectionID'] = 0;
+			
+			$teacherID= $this->input->post("teacherID");
+				
 			if($usertype == "Admin" ||  $usertype == "TeacherManager"){
-				$this->data['teachers'] = $this->teacher_m->get_teacher();				
+				$this->data['teachers'] = $this->teacher_m->get_teacher();
+
 			}else{
+				
 				$this->data['teachers'] = array($this->teacher_m->get_teacher($this->session->userdata("loginuserID")));
 			}
 
-			$this->data['teacherID'] = 0;
+			
+			if($usertype != "Admin"){
+				$teacherID = $this->session->userdata("loginuserID");
+				
+				if($this->input->post("teacherID") != "") $teacherID = $this->input->post("teacherID");
+				
+			}
+			
 			$this->data['date'] = date("Y-m-d");
-
-			$teacherID= $this->input->post("teacherID");
+			
+			
+			
 			$this->data['transportation_expenses'] = [];
+			$this->data['transportation_expenses'] = $this->teacher_transport_m->get_order_by_teacher_transport(array("teacherID"=>$teacherID));
 				
 			if($_POST) {
-				
-				$this->data['transportation_expenses'] = $this->teacher_transport_m->get_order_by_teacher_transport(array("teacherID"=>$teacherID));
 			
 				$rules = $this->rules();
 				
@@ -337,7 +349,7 @@ class Tattendance extends Admin_Controller {
 
 	function edit(){
 		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin") {
+		if($usertype == "Admin" || $usertype == "Teacher" || $usertype == "TeacherManager" || $usertype == "Receptionist"|| $usertype == "Salesman") {
 			$tattendanceID = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 			$this->data['classes'] = $this->classes_m->get_classes_1();
 			$classesID = $this->input->post("classesID");
@@ -423,7 +435,7 @@ class Tattendance extends Admin_Controller {
 
 	function delete(){
 		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin") {
+		if($usertype == "Admin" || $usertype == "Teacher" || $usertype == "TeacherManager" || $usertype == "Receptionist"|| $usertype == "Salesman") {
 			$tattendanceID = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 			if((int)$tattendanceID){
 				
