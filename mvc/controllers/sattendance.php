@@ -135,7 +135,7 @@ class Sattendance extends Admin_Controller {
 
 	public function add() {
 		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Teacher") {
+		if($usertype == "Admin" || $usertype == "Teacher"|| $usertype == "TeacherManager"|| $usertype == "Salesman"|| $usertype == "Receptionist") {
 
 			$this->data['set'] = 0;
 			$this->data['date'] = date("Y-m-d");
@@ -350,7 +350,7 @@ class Sattendance extends Admin_Controller {
 			$this->data["subjects"] = $this->subject_m->get_order_by_subject(array("classesID" => $url));
 		}
 
-		if($usertype == "Admin" || $usertype == "Teacher") {
+		if($usertype == "Admin" || $usertype == "Teacher"|| $usertype == "TeacherManager"|| $usertype == "Salesman"|| $usertype == "Receptionist") {
 			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 
 			if ((int)$id && (int)$url) {
@@ -490,89 +490,6 @@ class Sattendance extends Admin_Controller {
 	    } 
 	}
 
-	public function print_preview() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Teacher") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			$url = htmlentities(mysql_real_escape_string($this->uri->segment(4)));
-
-			if ((int)$id && (int)$url) {
-				$this->data["student"] = $this->student_m->get_student($id);
-				$this->data["class"] = $this->student_m->get_class($url);
-				if($this->data["student"] && $this->data["class"]) {
-					$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
-				    $this->load->library('html2pdf');
-				    $this->html2pdf->folder('./assets/pdfs/');
-				    $this->html2pdf->filename('Report.pdf');
-				    $this->html2pdf->paper('a4', 'landscape');
-				    $this->data['panel_title'] = $this->lang->line('panel_title');
-					$this->data['attendances'] = $this->sattendance_m->get_order_by_attendance(array("studentID" => $id, "classesID" => $url));
-					$html = $this->load->view('sattendance/print_preview', $this->data, true);
-					$this->html2pdf->html($html);
-					$this->html2pdf->create();
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-	public function send_mail() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Teacher") {
-			$id = $this->input->post('id');
-			$url = $this->input->post('set');
-			if ((int)$id && (int)$url) {
-				$this->data["student"] = $this->student_m->get_student($id);
-				$this->data["class"] = $this->student_m->get_class($url);
-				if($this->data["student"] && $this->data["class"]) {
-
-					$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
-					$this->load->library('html2pdf');
-				    $this->html2pdf->folder('uploads/report');
-				    $this->html2pdf->filename('Report.pdf');
-				    $this->html2pdf->paper('a4', 'landscape');
-				    $this->data['panel_title'] = $this->lang->line('panel_title');
-					$this->data['attendances'] = $this->sattendance_m->get_order_by_attendance(array("studentID" => $id, "classesID" => $url));
-					$html = $this->load->view('sattendance/print_preview', $this->data, true);
-					$this->html2pdf->html($html);
-					$this->html2pdf->create('save');
-
-					if($path = $this->html2pdf->create('save')) {
-					$this->load->library('email');
-					$this->email->set_mailtype("html");
-					$this->email->from($this->data["siteinfos"]->email, $this->data['siteinfos']->sname);
-					$this->email->to($this->input->post('to'));
-					$this->email->subject($this->input->post('subject'));
-					$this->email->message($this->input->post('message'));
-					$this->email->attach($path);
-						if($this->email->send()) {
-							$this->session->set_flashdata('success', $this->lang->line('mail_success'));
-						} else {
-							$this->session->set_flashdata('error', $this->lang->line('mail_error'));
-						}
-					}
-
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
 
 	function valid_future_date($date) {
 		$presentdate = date('Y-m-d');
