@@ -17,6 +17,7 @@ class Student extends Admin_Controller {
 	function __construct () {
 		parent::__construct();
 		$this->load->model("student_m");
+		$this->load->model("student_custom_course_m");
 		$this->load->model("parentes_m");
 		$this->load->model("section_m");
 		$this->load->model("user_m");
@@ -521,12 +522,12 @@ class Student extends Admin_Controller {
 		}
 	}	
 
-	private function add_class($amount){
+	private function add_class($amount, $student_name){
 		$array = array(
-			"classes" => "自定义套餐",
+			"classes" => "自定义套餐_".$student_name,
 			"teacherID" => "0",
 			"amount" => $amount,
-			"note" => "自定义套餐",
+			"note" => "自定义套餐_".$student_name,
 			"class_type" => "1",
 			"create_date" => date("Y-m-d h:i:s"),
 			"modify_date" => date("Y-m-d h:i:s"),
@@ -586,8 +587,9 @@ class Student extends Admin_Controller {
 							unset($rules[0],$rules[3], $rules[9],$rules[10],$rules[11]);
 						}
 						$input_classesID = $this->input->post('classesID');
-						if(($input_classesID && $input_classesID <> '1' && $usertype <> "Student") || (isset($state) && $state == "join")){
-							$input_subjects = $this->input->post("subjects_input");
+						$input_subjects = $this->input->post("subjects_input");
+						$this->data['subjects_input'] = $input_subjects;
+						if($input_subjects || ($input_classesID && $input_classesID <> '1' && $usertype <> "Student") || (isset($state) && $state == "join")){
 							if(!$input_subjects){
 								array_push($rules,array(
 										'field' => 'classesID',
@@ -626,11 +628,27 @@ class Student extends Admin_Controller {
 							$this->data["subview"] = "student/edit";
 							$this->load->view('_layout_main', $this->data);
 						} else {
+							// 学生自定义套餐有无判断
+							$custom_course_array = $this->student_custom_course_m->get_order_by_student_custom_course(array('studentID' => $id));
+							// 输入自定义课程的场合
 							if($input_subjects){
-								$amount = $this->input->post("amount");
-								$input_classesID = $this->add_class(4000);
-								if($input_classesID){
-									$this->insert_course_details($input_classesID);
+								$this->classes_m->get_order_by_classes(array('class_type' => '1', ));
+								if(isset($custom_course_array) && count($custom_course_array) <= 0){
+									$amount = $this->input->post("amount");
+									$custom_classesID = $this->add_class($amount, $this->input->post("name"));
+									// 不存在自定义套餐的场合，插入新记录
+									$this->student_custom_course_m->insert_student_custom_course(array('studentID' => $id, 'classesID' => $custom_classesID));
+								}
+								if($custom_classesID){
+									$this->insert_course_details($custom_classesID);
+								}
+							}else{
+								// 没有自定义课程的场合，清空
+								if(isset($custom_course_array) && count($custom_course_array) > 0){
+									$custom_classesID = $custom_course_array[0]->classesID;
+									$this->classes_m->delete_classes($custom_classesID);
+									$this->course_details_m->delete_by_classID($custom_classesID);
+									$this->student_custom_course_m->delete_student_custom_course($custom_course_array[0]->student_custom_courseID);
 								}
 							}
 

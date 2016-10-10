@@ -6,19 +6,17 @@
 
 <div class="row col-md-12 ">
 	<div class="col-md-6">
-				<?php if(isset($state) && $state == "join") {?>
-					  <div class='form-group' >
-						<label class="col-sm-3 control-label"></label>
-						<div class="col-sm-9">
-							<div class="radio-inline">
-								<label><input type="radio" name="courseType" id="radio1" value="1" <?php  if (isset($set)){ if($set=="1") echo "checked"; } else { echo "checked";} ?>> 推荐</label>
-							</div>
-							<div class="radio-inline">
-								<label><input type="radio" name="courseType" id="radio2" value="2" <?php  if (isset($set) && $set == "2"){ echo "checked"; } ?> > 自选</label>
-							</div>
-						</div>
-					</div>
-				<?php } ?>
+		<div class='form-group' >
+			<label class="col-sm-3 control-label"></label>
+			<div class="col-sm-9">
+				<div class="radio-inline">
+					<label><input type="radio" name="courseType" id="radio1" value="1" <?php  if (isset($set)){ if($set=="1") echo "checked"; } else { echo "checked";} ?>> 推荐</label>
+				</div>
+				<div class="radio-inline">
+					<label><input type="radio" name="courseType" id="radio2" value="2" <?php  if (isset($set) && $set == "2"){ echo "checked"; } ?> > 自选</label>
+				</div>
+			</div>
+		</div>
 	                  <?php
 	                        if(form_error('classesID'))
 	                            echo "<div class='form-group has-error' >";
@@ -27,6 +25,7 @@
 	                    ?>
 						<label class="col-sm-3 control-label"><?=$this->lang->line("student_classes")?><span class="required">必須</span></label>
 						<div class="col-sm-9">
+							<input type="hidden" id="hidden_classesID" value="<?=set_value("classesID", $student->classesID)?>" />
                            <?php
                                 $array = array('' => $this->lang->line("student_select_class"));
                                 foreach ($classes as $classa) {
@@ -49,7 +48,39 @@
 	                            <?php echo form_error('classesID'); ?>
 	                        </span>
 							<span id="subjects">
-							<span>
+								<?php
+									if(isset($subjects_input)){
+										if($subjects_input){
+											foreach($subjects_input as $subjectID) { 
+												$subject = $this->subject_m->get($subjectID);
+												echo "<button type='button' class='btn btn-success btn-xs' onclick='removesubject(this)' style='margin: 5px'>".
+													$subject->subject."<span class='glyphicon glyphicon-remove'></span></button>".
+													"<input type='hidden' name='subjects_input[]' value='".
+													$subjectID."'/>"; 
+											}
+										}
+									}else{
+										$custom_course_array = $this->student_custom_course_m->get_order_by_student_custom_course(array('studentID' => $student->studentID));
+										if(isset($custom_course_array) && count($custom_course_array) > 0){
+											$course_details = $this->course_details_m->get_by_classID($custom_course_array[0]->classesID);
+											foreach($course_details as $item) { 
+												$subject = $this->subject_m->get($item->subjectID);
+												if($subject){
+													$subject_name = $subject->subject;
+												}else{
+													$subject_name = $item->subject_name;
+												}
+												echo "<button type='button' class='btn btn-success btn-xs' onclick='removesubject(this)' style='margin: 5px'>".
+													$subject_name."<span class='glyphicon glyphicon-remove'></span></button>".
+													"<input type='hidden' name='subjects_input[]' value='".
+													$item->subjectID."'/>"; 
+											}
+										}
+									}
+								?>
+							</span>
+							<span id="classes_subjects">
+							</span>
 						</div>
 					</div>
 		             <?php
@@ -204,13 +235,17 @@ var $option;
 function toggleCourseType() {
 	if($('[name=courseType]:checked').val() == '2'){
 		$('#subject').show();
-		$('#classesID').hide().val('').change();
+		$('#subjects').show();
+		$('#classesID').hide();
+		$('#classes_subjects').hide();
 	}else{
 		$('input[name=courseType]:eq(0)').prop('checked',true);
 		$('#subject').hide();
-		cleanSubjects();
-		subjects = [];
-		$('#classesID').show().val('').change();
+		$('#subjects').hide();
+		// cleanSubjects();
+		// subjects = [];
+		$('#classesID').show();
+		$('#classes_subjects').show();
 		if($option){
 			$option.remove();
 		}
@@ -237,7 +272,7 @@ function getAmount() {
 };
 
 function getCourseDetailsByClassID() {
-	$('#subjects').empty();
+	$('#classes_subjects').empty();
     var classesID = $('#classesID').val();
     if(!classesID) {
         $('#classesID').val('');
@@ -250,7 +285,7 @@ function getCourseDetailsByClassID() {
 				},
             dataType: "html",
             success: function(data) {
-				$('#subjects').append(data);
+				$('#classes_subjects').append(data);
                 //取得学费
 		        $.ajax({
 		            type: 'POST',

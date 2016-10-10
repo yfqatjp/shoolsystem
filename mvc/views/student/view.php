@@ -231,8 +231,10 @@
                     </div>
                 </div>
                 <?php
-                        if($class->class_type == '1'){
-                            $course_details = $this->course_details_m->get_by_classID($class->classesID);
+                        $custom_course_array = $this->student_custom_course_m->get_order_by_student_custom_course(array('studentID' => $student->studentID));
+                        if(isset($custom_course_array) && count($custom_course_array) > 0){
+                            echo '<h5>自定义套餐</h5>';
+                            $course_details = $this->course_details_m->get_by_classID($custom_course_array[0]->classesID);
                             foreach($course_details as $item) { 
                                 $subject = $this->subject_m->get($item->subjectID);
                                 echo "<div class='row'>";
@@ -245,7 +247,7 @@
                                 echo "</p>";
                                 echo "</div>";
                                 echo "</div>";
-                            }
+                            }			
                         }
                     } else {
                         echo "<div class='col-sm-12'><div class='col-sm-12 alert alert-warning'><span class='fa fa-exclamation-triangle'></span> ";
