@@ -51,6 +51,21 @@ class Code_m extends MY_Model {
 		
 	return 0;	
 	}
+
+	public function  get_max_code_by_name($where){
+		
+		$query = $this->db->select('MAX(code) AS maxid')->from('code')->where($where)->get();
+		
+		if ($query->num_rows() > 0)
+		{
+			$row = $query->row();
+		
+			return  $row->maxid;
+
+		}
+		
+	return 0;	
+	}
 	
 
 	public function getcodeToSession() {

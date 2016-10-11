@@ -329,7 +329,10 @@ if($usertype <> "Student") {
 						<div class="col-sm-9">
                             <?php
                                 $studentSource = $this->session->userdata("studentSource");
-                                if(isset($student)){
+                                foreach ($this->code_m->getcodeToArray(array('codeName'=>'studentSource', 'loadflag' => '1')) as $key => $value) {
+									$studentSource[$key] = $value;
+								}
+								if(isset($student)){
                                     echo form_dropdown("source", $studentSource, set_value("source",$student->source), "id='source' class='form-control'");
                                 }else{
                                     echo form_dropdown("source", $studentSource, set_value("source"), "id='source' class='form-control'");
@@ -349,7 +352,12 @@ if($usertype <> "Student") {
 	                  ?>
 						<label class="col-sm-3 control-label"><?=$this->lang->line("student_source_memo")?><span class="required">必須</span></label>
 						<div class="col-sm-9">
-						<?php $studentSourcePartner = $this->session->userdata("studentSourcePartner"); ?>
+						<?php 
+							$studentSourcePartner = $this->session->userdata("studentSourcePartner"); 
+							foreach ($this->code_m->getcodeToArray(array('codeName'=>'studentSourcePartner', 'loadflag' => '1')) as $key => $value) {
+								$studentSourcePartner[$key] = $value;
+							}
+						?>
 						<?php if (isset($student)) {?>
 						<input type="text" class="form-control" id="source_memo" name="source_memo" value="<?=set_value('source_memo',$student->source_memo)?>"  placeholder="">
                         <?php echo form_dropdown("source_partner", $studentSourcePartner, set_value("source_partner",$student->source_memo), "id='source_partner' class='form-control' ");

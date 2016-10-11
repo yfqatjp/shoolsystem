@@ -23,6 +23,7 @@ class Student extends Admin_Controller {
 		$this->load->model("user_m");
 		$this->load->model("classes_m");
 		$this->load->model("invoice_m");
+		$this->load->model("code_m");
 		$this->load->model('payment_m');
 		$this->load->model("evaluation_m");
 		$this->load->model("subject_m");

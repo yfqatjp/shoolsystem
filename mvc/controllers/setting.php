@@ -286,9 +286,10 @@ Class setting extends Admin_Controller {
 							$array["codevalue"] = $this->input->post("codevalue");
 	
 					    	$maxid = $this->code_m->get_max_id();
-					    	$array["code"] = $maxid + 1;
+					    	$maxcode = $this->code_m->get_max_code_by_name(array('codeName' => $array["codename"]));
+					    	$array["code"] = $maxcode + 1;
 					    	$array["loadFlag"] = "1";
-					    	$array["sort"] = $maxid + 1;
+					    	$array["sort"] = $maxcode + 1;
 					    	$array["codeID"] = $maxid + 1;					    	
 					    	$maxid = $this->code_m->insert_code($array);
 							
