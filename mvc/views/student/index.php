@@ -149,7 +149,19 @@
                                                           <?php } else {?>
   	                                                        <td data-title="<?=$this->lang->line('student_classes')?>">
   	                                                            <?php  	                                                            
-  	                                                            if(isset($arrayClass[$student->classesID]))echo $arrayClass[$student->classesID]; ?>
+  	                                                                if(isset($arrayClass[$student->classesID])){
+                                                                          echo $arrayClass[$student->classesID];
+                                                                    }
+                                                                    $custom_course_array = $this->student_custom_course_m->get_order_by_student_custom_course(array('studentID' => $student->studentID));
+                                                                    if(isset($custom_course_array) && count($custom_course_array) > 0){
+                                                                        $course_details = $this->course_details_m->get_by_classID($custom_course_array[0]->classesID);
+                                                                        foreach($course_details as $item) { 
+                                                                            $subject = $this->subject_m->get($item->subjectID);
+                                                                            echo "|";
+                                                                            echo $subject->subject;
+                                                                        }			
+                                                                    }
+                                                                ?>
   	                                                        </td>
   	                                                        <td data-title="<?=$this->lang->line('student_paymentAmount')?>">
   	                                                            <?php echo $student->totalamount; ?>
