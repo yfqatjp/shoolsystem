@@ -176,6 +176,9 @@
           <div class="col-sm-7">
            <?php
                                 $studentSource = $this->session->userdata("studentSource");
+                                foreach ($this->code_m->getcodeToArray(array('codeName'=>'studentSource', 'loadflag' => '1')) as $key => $value) {
+									$studentSource[$key] = $value;
+								}
                                 foreach ($studentSource as $key => $value){
                                 if($key == "") continue;
                                  $check ="";
@@ -194,6 +197,9 @@
                           <div id="source_memo">
                             <?php
                                 $studentSourcePartner = $this->session->userdata("studentSourcePartner");
+                                foreach ($this->code_m->getcodeToArray(array('codeName'=>'studentSourcePartner', 'loadflag' => '1')) as $key => $value) {
+                                    $studentSourcePartner[$key] = $value;
+                                }
                                 foreach ($studentSourcePartner as $key => $value) {
                                     if($key == "") continue;
                                     $check ="";
