@@ -6,17 +6,6 @@
 
 <div class="row col-md-12 ">
 	<div class="col-md-6">
-		<div class='form-group' >
-			<label class="col-sm-3 control-label"></label>
-			<div class="col-sm-9">
-				<div class="radio-inline">
-					<label><input type="radio" name="courseType" id="radio1" value="1" <?php  if (isset($set)){ if($set=="1") echo "checked"; } else { echo "checked";} ?>> 推荐</label>
-				</div>
-				<div class="radio-inline">
-					<label><input type="radio" name="courseType" id="radio2" value="2" <?php  if (isset($set) && $set == "2"){ echo "checked"; } ?> > 自选</label>
-				</div>
-			</div>
-		</div>
 	                  <?php
 	                        if(form_error('classesID'))
 	                            echo "<div class='form-group has-error' >";
@@ -26,6 +15,7 @@
 						<label class="col-sm-3 control-label"><?=$this->lang->line("student_classes")?><span class="required">必須</span></label>
 						<div class="col-sm-9">
 							<input type="hidden" id="hidden_classesID" value="<?=set_value("classesID", $student->classesID)?>" />
+							推荐
                            <?php
                                 $array = array('' => $this->lang->line("student_select_class"));
                                 foreach ($classes as $classa) {
@@ -37,6 +27,19 @@
 								// }
 								$disabled = '';
                                 echo form_dropdown("classesID", $array, set_value("classesID", $student->classesID), "id='classesID' class='form-control'".$disabled);
+                            ?>
+	                        <span class="control-label">
+	                            <?php echo form_error('classesID'); ?>
+	                        </span>
+							<span id="classes_subjects">
+							</span>
+						</div>
+					</div>
+					<div class='form-group' >
+						<label class="col-sm-3 control-label"></label>
+						<div class="col-sm-9">
+						自选
+							<?php
 								$array = array();
 								$array[0] = $this->lang->line("student_select_subject");
 								foreach ($subjects as $subject) {
@@ -44,9 +47,6 @@
 								}
 								echo form_dropdown("subject", $array, set_value("subject"), "id='subject' class='form-control'");
                             ?>
-	                        <span class="control-label">
-	                            <?php echo form_error('classesID'); ?>
-	                        </span>
 							<span id="subjects">
 								<?php
 									if(isset($subjects_input)){
@@ -79,10 +79,9 @@
 									}
 								?>
 							</span>
-							<span id="classes_subjects">
-							</span>
 						</div>
 					</div>
+
 		             <?php
 	                        if(form_error('subjectStartdate'))
 	                            echo "<div class='form-group has-error' >";
@@ -226,32 +225,10 @@ $().ready(
             var item = $('input[name^=subjects_input]').get(i);
             subjects[$(item).val()] = $(item).prev().text();
         }
-		$('input[name=courseType]:eq(0)').prop('checked',true);
-		$('#subject').hide();
 		getCourseDetailsByClassID();
     }
 );
 var $option;
-function toggleCourseType() {
-	if($('[name=courseType]:checked').val() == '2'){
-		$('#subject').show();
-		$('#subjects').show();
-		$('#classesID').hide();
-		$('#classes_subjects').hide();
-	}else{
-		$('input[name=courseType]:eq(0)').prop('checked',true);
-		$('#subject').hide();
-		$('#subjects').hide();
-		// cleanSubjects();
-		// subjects = [];
-		$('#classesID').show();
-		$('#classes_subjects').show();
-		if($option){
-			$option.remove();
-		}
-	}
-}
-$('[name=courseType]').change(toggleCourseType);
 function getAmount() {
     if(subjects.length > '0') {
 		if($option){
