@@ -104,7 +104,9 @@
                                                               if($student->source_memo != null && $student->source_memo != ""){
                                                                   $studentSourcePartner = $this->session->userdata("studentSourcePartner"); 
                                                                   if(array_key_exists($student->source_memo, $studentSourcePartner)){
-                                                              	    $memo = "(".$studentSourcePartner[$student->source_memo].")";
+                                                              	      $memo = "(".$studentSourcePartner[$student->source_memo].")";
+                                                                  }else{
+                                                                      $memo = "(".$student->source_memo.")";
                                                                   }
                                                               }
                                                                 if(array_key_exists($student->source, $studentSource)){
