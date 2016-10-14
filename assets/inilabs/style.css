@@ -667,7 +667,7 @@ body > .header .logo .icon {
   padding: 0;
 }
 .sidebar .sidebar-menu > li > a {
-  font-size: 12px;
+  font-size: 16px;
   color: #A4B1C2;
   padding: 10px 5px 10px 15px;
   display: block;
@@ -675,7 +675,7 @@ body > .header .logo .icon {
 .sidebar .sidebar-menu > li > a > .fa,
 .sidebar .sidebar-menu > li > a > .glyphicon,
 .sidebar .sidebar-menu > li > a > .ion {
-  font-size: 12px;
+  font-size: 16px;
   width: 25px;
 }
 .sidebar .sidebar-menu .treeview-menu {
