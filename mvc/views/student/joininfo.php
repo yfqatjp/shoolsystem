@@ -141,11 +141,10 @@
 										//echo form_dropdown("amount", $array, set_value("amount"), "id='amount' class='form-control' readonly");
 									?>
 									<input type="text" class="form-control"  id="amount" name="amount" value="<?=set_value('amount')?>"  >
-
-							</div>
 								<span class="control-label">
 									<?php echo form_error('amount'); ?>
 								</span>
+							</div>
 							</div>
 							<!--<?php
 								if(form_error('paymentamount'))

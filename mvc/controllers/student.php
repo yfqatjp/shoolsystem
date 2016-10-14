@@ -610,6 +610,11 @@ class Student extends Admin_Controller {
 									'rules' => 'trim|required|max_length[10]|callback_date_valid|xss_clean'
 								),
 								array(
+									'field' => 'amount',
+									'label' => $this->lang->line("student_amount"),
+									'rules' => 'trim|required|numeric|xss_clean'
+								),
+								array(
 									'field' => 'fee_remission_amount',
 									'label' => $this->lang->line("student_fee_remission"),
 									'rules' => 'trim|numeric|xss_clean'
@@ -637,6 +642,9 @@ class Student extends Admin_Controller {
 								if(isset($custom_course_array) && count($custom_course_array) <= 0){
 									$amount = $this->input->post("amount");
 									$custom_classesID = $this->add_class($amount, $this->input->post("name"));
+									if(!$input_classesID){
+										$input_classesID = $custom_classesID;
+									}
 									// 不存在自定义套餐的场合，插入新记录
 									$this->student_custom_course_m->insert_student_custom_course(array('studentID' => $id, 'classesID' => $custom_classesID));
 								}
