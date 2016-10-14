@@ -174,6 +174,10 @@
     .fc-event{
         font-size: 14px;
     }
+    .fc-event:hover{
+        font-size: 16px;
+        cursor:pointer;
+    }
   </style>
   <script type="text/javascript">
     $(function() {

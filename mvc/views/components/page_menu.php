@@ -94,6 +94,13 @@
                                 <ul class="treeview-menu" >
                                     <li>
                                         <?php echo anchor('sattendance/index', '<i class="fa icon-sattendance"></i><span>'.$this->lang->line('menu_sattendance').'</span>'); ?>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa icon-sattendance"></i>
+                                            <span>学员出勤查看</span>
+                                        </a>
+                                        <!--<?php echo anchor('feetype/index', '<i class="fa icon-feetype"></i><span>'.$this->lang->line('menu_feetype').'</span>'); ?>-->
                                     </li>    
                                     <!--  
                                     <li>
@@ -104,20 +111,38 @@
                             </li>
                         <?php } ?>
                         
-                        <?php
-                             if($usertype == "Admin" ||  $usertype == "TeacherManager" ) {
-                                echo '<li>';
-                                    echo anchor('tattendance/index', '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>');
-                                echo '</li>';
-                            }
+                        <?php if($usertype == "Admin" ||  $usertype == "TeacherManager" || $usertype == "Teacher"|| $usertype == "Salesman" || $usertype == "Receptionist") { ?>
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-money"></i>
+                                    <span><?=$this->lang->line('menu_tattendance');?></span>
+                                    <i class="fa fa-angle-left pull-right"></i>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <?php
+                                        if($usertype == "Admin" ||  $usertype == "TeacherManager" ) {
+                                            echo '<li>';
+                                                echo anchor('tattendance/index', '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>');
+                                            echo '</li>';
+                                        }
+                                        
                             
-                  
-                            if( $usertype == "Teacher"|| $usertype == "Salesman" || $usertype == "Receptionist") {
-                            	echo '<li>';
-                            	echo anchor('tattendance/detaile/'.$userID, '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>');
-                            	echo '</li>';
-                            }
-                        ?>
+                                        if( $usertype == "Teacher"|| $usertype == "Salesman" || $usertype == "Receptionist") {
+                                            echo '<li>';
+                                            echo anchor('tattendance/detaile/'.$userID, '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>');
+                                            echo '</li>';
+                                        }
+                                    ?>
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa icon-account"></i>
+                                            <span>工资一览</span>
+                                        </a>
+                                        <!--<?php echo anchor('feetype/index', '<i class="fa icon-feetype"></i><span>'.$this->lang->line('menu_feetype').'</span>'); ?>-->
+                                    </li>
+                                </ul>
+                            </li>
+                        <?php } ?>
                         
                         <?php if($usertype == "Admin") { ?>
                             <li class="treeview">
