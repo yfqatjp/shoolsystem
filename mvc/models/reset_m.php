@@ -152,7 +152,7 @@ class reset_m extends CI_Model {
 			// テンプレートに渡す値の設定
 			$data = array();
 			$data['mail'] = $email;
-			$data['reset_url'] = '<a href="'.$tmp_url.'">'.$tmp_url.'</a>';												
+			$data['reset_url'] = $tmp_url;												
 			$data['tel'] = $siteinfo->phone;
 			$data['sitename'] = $siteinfo->sname;
 			$data['adress'] = $siteinfo->address;
