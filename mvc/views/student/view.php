@@ -215,21 +215,24 @@
                 <?php
                     if($student->classesID > 1 && $class ) { 
                 ?>
-
-                <div class="row">
-                    <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_classes")?> </span>: <?php if(isset($class->classes))echo $class->classes;?></p>
+                    <?php
+                        if($class->class_type == 0 ) { 
+                    ?>
+                    <div class="row">
+                        <div class="profile-view-tab">
+                            <p><span><?=$this->lang->line("student_classes")?> </span>: <?php if(isset($class->classes))echo $class->classes;?></p>
+                        </div>
+                        <!-- <div class="profile-view-tab">
+                            <p><span><?=$this->lang->line("student_join_date")?> </span>: <?=$student->create_date?></p>
+                        </div> -->
+                        <div class="profile-view-tab">
+                            <p><span><?=$this->lang->line("student_subjectStartdate")?> </span>: <?=$student->subjectStart_date?></p>
+                        </div>
+                        <div class="profile-view-tab">
+                            <p><span><?=$this->lang->line("student_subjectEnddate")?> </span>: <?=$student->subjectEnd_date?></p>
+                        </div>
                     </div>
-                    <!-- <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_join_date")?> </span>: <?=$student->create_date?></p>
-                    </div> -->
-                    <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_subjectStartdate")?> </span>: <?=$student->subjectStart_date?></p>
-                    </div>
-                    <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_subjectEnddate")?> </span>: <?=$student->subjectEnd_date?></p>
-                    </div>
-                </div>
+                    <?php } ?>
                 <?php
                         $custom_course_array = $this->student_custom_course_m->get_order_by_student_custom_course(array('studentID' => $student->studentID));
                         if(isset($custom_course_array) && count($custom_course_array) > 0){
