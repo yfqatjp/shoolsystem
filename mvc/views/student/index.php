@@ -138,7 +138,7 @@
                                                                       if(isset($evaluations)){
                                                                           $index = 1;
                                                                           foreach($evaluations as $evaluation){
-                                                                              $tooltip_value = $tooltip_value.'('.$index.') '.$evaluation->evaluation.'; <br>';
+                                                                              $tooltip_value = $tooltip_value.'('.$index.') '.$evaluation->evaluation.' --'.$evaluation->createusername.' '.$evaluation->modify_date.'; <br>';
                                                                               $index++;
                                                                           }
                                                                       }
