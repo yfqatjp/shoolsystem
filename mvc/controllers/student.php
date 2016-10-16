@@ -397,6 +397,7 @@ class Student extends Admin_Controller {
 	
 			if($_POST) {
 				$rules = $this->rules();
+				unset($rules[5]);
 				$this->form_validation->set_rules($rules);
 				if ($this->form_validation->run() == FALSE) {
 					$this->data["subview"] = "student/addcustomer";

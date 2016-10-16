@@ -285,7 +285,7 @@ if($usertype <> "Student") {
 	                        else
 	                            echo "<div class='form-group' >";
 	                  ?>
-						<label class="col-sm-3 control-label"><?=$this->lang->line("student_email")?><span class="required">必須</span></label>
+						<label class="col-sm-3 control-label"><?=$this->lang->line("student_email")?><!--<span class="required">必須</span>--></label>
 						<div class="col-sm-9">
 						<?php if (isset($student)) {?>
 						<input type="text" class="form-control" id="email" name="email" value="<?=set_value('email',$student->email)?>"  placeholder="test@gmail.com">
