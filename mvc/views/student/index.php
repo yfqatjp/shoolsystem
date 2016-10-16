@@ -143,7 +143,7 @@
                                                                           }
                                                                       }
                                                                 ?>
-                                                                <span data-toggle="tooltip" data-html="true" title="<?php echo $tooltip_value; ?>"><?php echo $student->evaluationCount; ?></span>
+                                                                <span data-toggle="tooltip" data-html="true" title="<?php echo $tooltip_value; ?>" style=" font-weight: bold; cursor: pointer;"><?php echo $student->evaluationCount; ?></span>
   	                                                        </td>
   	                                                        <td data-title="<?=$this->lang->line('student_createdate')?>">
   	                                                            <?php echo date('Y-m-d',strtotime($student->create_date)); ?>
