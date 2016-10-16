@@ -93,15 +93,11 @@
                                 </a>
                                 <ul class="treeview-menu" >
                                     <li>
-                                        <?php echo anchor('sattendance/index', '<i class="fa icon-sattendance"></i><span>'.$this->lang->line('menu_sattendance').'</span>'); ?>
-                                    </li>
+                                        <?php echo anchor('sattendance/index', '<i class="fa icon-sattendance"></i><span>'.$this->lang->line('menu_student_attendance_view').'</span>'); ?>
+                                    </li>   
                                     <li>
-                                        <a href="#">
-                                            <i class="fa icon-sattendance"></i>
-                                            <span>学员出勤查看</span>
-                                        </a>
-                                        <!--<?php echo anchor('feetype/index', '<i class="fa icon-feetype"></i><span>'.$this->lang->line('menu_feetype').'</span>'); ?>-->
-                                    </li>    
+                                        <?php echo anchor('sattendance/add', '<i class="fa icon-sattendance"></i><span>'.$this->lang->line('menu_student_attendance_input').'</span>'); ?>
+                                    </li> 
                                     <!--  
                                     <li>
                                         <?php echo anchor('tattendance/index', '<i class="fa icon-tattendance"></i><span>'.$this->lang->line('menu_tattendance').'</span>'); ?>
@@ -122,23 +118,19 @@
                                     <?php
                                         if($usertype == "Admin" ||  $usertype == "TeacherManager" ) {
                                             echo '<li>';
-                                                echo anchor('tattendance/index', '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>');
+                                                echo anchor('tattendance/index', '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance_view').'</span>');
                                             echo '</li>';
                                         }
                                         
                             
                                         if( $usertype == "Teacher"|| $usertype == "Salesman" || $usertype == "Receptionist") {
                                             echo '<li>';
-                                            echo anchor('tattendance/detaile/'.$userID, '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>');
+                                            echo anchor('tattendance/detaile/'.$userID, '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance_view').'</span>');
                                             echo '</li>';
                                         }
                                     ?>
                                     <li>
-                                        <a href="#">
-                                            <i class="fa icon-account"></i>
-                                            <span>工资一览</span>
-                                        </a>
-                                        <!--<?php echo anchor('feetype/index', '<i class="fa icon-feetype"></i><span>'.$this->lang->line('menu_feetype').'</span>'); ?>-->
+                                        <?php echo anchor('tattendance/add', '<i class="fa fa-money"></i><span>'.$this->lang->line('menu_tattendance').'</span>'); ?>
                                     </li>
                                 </ul>
                             </li>
