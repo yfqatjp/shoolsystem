@@ -93,246 +93,11 @@ class Invoice extends Admin_Controller {
 				array(
 					'field' => 'payment_method',
 					'label' => $this->lang->line("invoice_paymentmethod"),
-					'rules' => 'trim|required|xss_clean|max_length[11]|callback_unique_paymentmethod'
+					'rules' => 'trim|required|xss_clean|max_length[11]'
 				)
 			);
 		return $rules;
 	}
-
-	public function add() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Accountant") {
-			$this->data['classes'] = $this->classes_m->get_classes();
-			$this->data['feetypes'] = $this->feetype_m->get_feetype();
-			$classesID = $this->input->post("classesID");
-			if($classesID != 0) {
-				$this->data['students'] = $this->student_m->get_order_by_student(array("classesID" => $classesID));
-			} else {
-				$this->data['students'] = "empty";
-			}
-			$this->data['studentID'] = 0;
-			if($_POST) {
-				$this->data['studentID'] = $this->input->post('studentID');
-				$rules = $this->rules();
-				$this->form_validation->set_rules($rules);
-				if ($this->form_validation->run() == FALSE) {
-					$this->data["subview"] = "invoice/add";
-					$this->load->view('_layout_main', $this->data);
-				} else {
-					if($this->input->post('studentID')) {
-						$classesID = $this->input->post('classesID');
-						$getclasses = $this->classes_m->get_classes($classesID);
-						$studentID = $this->input->post('studentID');
-						$getstudent = $this->student_m->get_student($studentID);
-						$amount = $this->input->post("amount");
-						$array = array(
-							'classesID' => $classesID,
-							'classes' => $getclasses->classes,
-							'studentID' => $studentID,
-							'student' => $getstudent->name,
-							'roll' => $getstudent->roll,
-							'feetype' => $this->input->post("feetype"),
-							'amount' => $amount,
-							'status' => 0,
-							'date' => date("Y-m-d", strtotime($this->input->post("date"))),
-							'year' => date('Y')
-						);
-						$oldamount = $getstudent->totalamount;
-						$nowamount = $oldamount+$amount;
-						$this->student_m->update_student(array('totalamount' => $nowamount), $getstudent->studentID);
-						$returnID = $this->invoice_m->insert_invoice($array);
-						$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-					 	redirect(base_url("invoice/view/$returnID"));
-					} else {
-						$classesID = $this->input->post('classesID');
-						$getclasses = $this->classes_m->get_classes($classesID);
-						$getstudents = $this->student_m->get_order_by_student(array("classesID" => $classesID));
-						$amount = $this->input->post("amount");
-						foreach ($getstudents as $key => $getstudent) {
-							$array = array(
-								'classesID' => $classesID,
-								'classes' => $getclasses->classes,
-								'studentID' => $getstudent->studentID,
-								'student' => $getstudent->name,
-								'roll' => $getstudent->roll,
-								'feetype' => $this->input->post("feetype"),
-								'amount' => $amount,
-								'status' => 0,
-								'date' => date("Y-m-d", strtotime($this->input->post("date"))),
-								'year' => date('Y')
-							);
-							$oldamount = $getstudent->totalamount;
-							$nowamount = $oldamount+$amount;
-							$this->student_m->update_student(array('totalamount' => $nowamount), $getstudent->studentID);
-							$this->invoice_m->insert_invoice($array);
-						}
-						$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-					 	redirect(base_url("invoice/index"));
-					}
-				}
-			} else {
-				$this->data["subview"] = "invoice/add";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-	public function edit() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Accountant") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$this->data['invoice'] = $this->invoice_m->get_invoice($id);
-				$this->data['classes'] = $this->classes_m->get_classes();
-
-				if($this->data['invoice']) {
-
-					if($this->data['invoice']->classesID != 0) {
-						$this->data['students'] = $this->student_m->get_order_by_student(array("classesID" => $this->data['invoice']->classesID));
-					} else {
-						$this->data['students'] = "empty";
-					}
-					$this->data['studentID'] = $this->data['invoice']->studentID;
-
-					if($_POST) {
-						$this->data['studentID'] = $this->input->post('studentID');
-						$rules = $this->rules();
-						$this->form_validation->set_rules($rules);
-						if ($this->form_validation->run() == FALSE) {
-							$this->data["subview"] = "invoice/edit";
-							$this->load->view('_layout_main', $this->data);
-						} else {
-							$status = 0;
-							$oldstudent = $this->student_m->get_student($this->data['invoice']->studentID);
-							$osoldamount = $oldstudent->totalamount;
-							$oldnowamount = ($osoldamount)-($this->data['invoice']->amount);
-							$this->student_m->update_student(array('totalamount' => $oldnowamount), $oldstudent->studentID);
-
-							$classesID = $this->input->post('classesID');
-							$getclasses = $this->classes_m->get_classes($classesID);
-							$studentID = $this->input->post('studentID');
-							$getstudent = $this->student_m->get_student($studentID);
-							$amount = $this->input->post("amount");
-
-							if(empty($this->data['invoice']->paidamount)) {
-								$status = 0;
-							} elseif($this->data['invoice']->paidamount == $amount) {
-								$status = 2;
-							} else {
-								$status = 1;
-							}
-
-							$array = array(
-								'classesID' => $classesID,
-								'classes' => $getclasses->classes,
-								'studentID' => $studentID,
-								'student' => $getstudent->name,
-								'roll' => $getstudent->roll,
-								'feetype' => $this->input->post("feetype"),
-								'amount' => $amount,
-								'status' => $status,
-							);
-							$oldamount = $getstudent->totalamount;
-							$nowamount = $oldamount+$amount;
-
-							$this->student_m->update_student(array('totalamount' => $nowamount), $getstudent->studentID);
-							$this->invoice_m->update_invoice($array, $id);
-							$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-						 	redirect(base_url("invoice/index"));
-
-						}
-					} else {
-						$this->data["subview"] = "invoice/edit";
-						$this->load->view('_layout_main', $this->data);
-					}
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-	public function delete() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Accountant") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$this->data['invoice'] = $this->invoice_m->get_invoice($id);
-				if($this->data['invoice']) {
-					$oldstudent = $this->student_m->get_student($this->data['invoice']->studentID);
-					$osoldamount = $oldstudent->totalamount;
-					$oldnowamount = ($osoldamount)-($this->data['invoice']->amount);
-					$this->student_m->update_student(array('totalamount' => $oldnowamount), $oldstudent->studentID);
-					$this->invoice_m->delete_invoice($id);
-					$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-					redirect(base_url('invoice/index'));
-				} else {
-					redirect(base_url('invoice/index'));
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-	public function view() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin" || $usertype == "Accountant") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$this->data["invoice"] = $this->invoice_m->get_invoice($id);
-				if($this->data["invoice"]) {
-					$this->data["student"] = $this->student_m->get_student($this->data["invoice"]->studentID);
-					$this->data["subview"] = "invoice/view";
-					$this->load->view('_layout_main', $this->data);
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} elseif($usertype == "Student") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$username = $this->session->userdata("username");
-				$getstudent = $this->student_m->get_single_student(array("username" => $username));
-				$this->data["invoice"] = $this->invoice_m->get_invoice($id);
-				if($this->data['invoice'] && ($this->data['invoice']->studentID == $getstudent->studentID)) {
-					$this->data["student"] = $this->student_m->get_student($this->data["invoice"]->studentID);
-					$this->data["subview"] = "invoice/view";
-					$this->load->view('_layout_main', $this->data);
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		}else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-
-
 
 	public function payment() {
 		$usertype = $this->session->userdata("usertype");
@@ -414,12 +179,7 @@ class Invoice extends Admin_Controller {
 											$dbuserID = $user->systemadminID;
 											$dbusertype = $user->usertype;
 											$dbuname = $user->name;
-										} elseif($usertype == "Accountant") {
-											$user = $this->user_m->get_username_row("user", array("username" => $username));
-											$dbuserID = $user->userID;
-											$dbusertype = $user->usertype;
-											$dbuname = $user->name;
-										}
+										} 
 
 										$nowpaymenttype = '';
 										if(empty($this->data['invoice']->paymenttype)) {
@@ -493,12 +253,7 @@ class Invoice extends Admin_Controller {
 											$dbuserID = $user->systemadminID;
 											$dbusertype = $user->usertype;
 											$dbuname = $user->name;
-										} elseif($usertype == "Accountant") {
-											$user = $this->user_m->get_username_row("user", array("username" => $username));
-											$dbuserID = $user->userID;
-											$dbusertype = $user->usertype;
-											$dbuname = $user->name;
-										}
+										} 
 
 										$nowpaymenttype = '';
 										if(empty($this->data['invoice']->paymenttype)) {
@@ -570,51 +325,6 @@ class Invoice extends Admin_Controller {
 				$this->data["subview"] = "error";
 				$this->load->view('_layout_main', $this->data);
 			}
-		} elseif($usertype == "Student") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$this->data['invoice'] = $this->invoice_m->get_invoice($id);
-				$username = $this->session->userdata("username");
-				$getstudent = $this->student_m->get_single_student(array("username" => $username));
-				$this->data["invoice"] = $this->invoice_m->get_invoice($id);
-
-				if($this->data['invoice'] && ($this->data['invoice']->studentID == $getstudent->studentID)) {
-					if(($this->data['invoice']->paidamount != $this->data['invoice']->amount) && ($this->data['invoice']->status == 0 || $this->data['invoice']->status == 1)) {
-						if($_POST) {
-							$rules = $this->payment_rules();
-							unset($rules[1]);
-							$this->form_validation->set_rules($rules);
-							if ($this->form_validation->run() == FALSE) {
-								$this->data["subview"] = "invoice/payment";
-								$this->load->view('_layout_main', $this->data);
-							} else {
-								$payable_amount = $this->input->post('amount')+$this->data['invoice']->paidamount;
-								if ($payable_amount > $this->data['invoice']->amount) {
-									$this->session->set_flashdata('error', 'Payment amount is much than invoice amount');
-									redirect(base_url("invoice/payment/$id"));
-								} else {
-									$this->post_data = $this->input->post();
-									$this->post_data['id'] = $id;
-									$this->invoice_data = $this->invoice_m->get_invoice($id);
-									$this->Paypal();
-								}
-							}
-						} else {
-							$this->data["subview"] = "invoice/payment";
-							$this->load->view('_layout_main', $this->data);
-						}
-					} else {
-						$this->data["subview"] = "error";
-						$this->load->view('_layout_main', $this->data);
-					}
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
 		}  else {
 			$this->data["subview"] = "error";
 			$this->load->view('_layout_main', $this->data);
@@ -623,116 +333,6 @@ class Invoice extends Admin_Controller {
 
 
 
-	public function getSuccessPayment() {
-  		$userID = $this->userID();
-  		$api_config = array();
-		$get_configs = $this->payment_settings_m->get_order_by_config();
-		foreach ($get_configs as $key => $get_key) {
-			$api_config[$get_key->config_key] = $get_key->value;
-		}
-		$this->data['set_key'] = $api_config;
-
-   		$gateway = Omnipay::create('PayPal_Express');
-		$gateway->setUsername($api_config['paypal_api_username']);
-		$gateway->setPassword($api_config['paypal_api_password']);
-		$gateway->setSignature($api_config['paypal_api_signature']);
-
-		$gateway->setTestMode($api_config['paypal_demo']);
-
-		$params = $this->session->userdata('params');
-  		$response = $gateway->completePurchase($params)->send();
-  		$paypalResponse = $response->getData(); // this is the raw response object
-  		$purchaseId = $_GET['PayerID'];
-  		$this->data['invoice'] = $this->invoice_m->get_invoice($params['invoice_id']);
-  		$recent_paidamount = $params['amount']+$this->data['invoice']->paidamount;
-  		if(isset($paypalResponse['PAYMENTINFO_0_ACK']) && $paypalResponse['PAYMENTINFO_0_ACK'] === 'Success') {
-  			// Response
-  			if ($purchaseId) {
-
-				$status = 0;
-				if($recent_paidamount == $this->data['invoice']->amount) {
-					$status = 2;
-				} else {
-					$status = 1;
-				}
-
-				$usertype = $this->session->userdata("usertype");
-				$username = $this->session->userdata('username');
-				$dbuserID = 0;
-				$dbusertype = '';
-				$dbuname = '';
-				if($usertype == "Admin") {
-					$user = $this->user_m->get_username_row("systemadmin", array("username" => $username));
-					$dbuserID = $user->systemadminID;
-					$dbusertype = $user->usertype;
-					$dbuname = $user->name;
-				}  elseif($usertype == "Student") {
-					$user = $this->user_m->get_username_row("student", array("username" => $username));
-					$dbuserID = $user->studentID;
-					$dbusertype = $user->usertype;
-					$dbuname = $user->name;
-				}
-
-				$nowpaymenttype = '';
-				if(empty($this->data['invoice']->paymenttype)) {
-					$nowpaymenttype = 'Paypal';
-				} else {
-					if($this->data['invoice']->paymenttype == 'Paypal') {
-						$nowpaymenttype = 'Paypal';
-					} else {
-						$exp = explode(',', $this->data['invoice']->paymenttype);
-						if(!in_array('Paypal', $exp)) {
-							$nowpaymenttype =  $this->data['invoice']->paymenttype.','.'Paypal';
-						} else {
-							$nowpaymenttype =  $this->data['invoice']->paymenttype;
-						}
-					}
-				}
-
-				$array = array(
-					"paidamount" => $recent_paidamount,
-					"status" => $status,
-					"paymenttype" => $nowpaymenttype,
-					"paiddate" => date('Y-m-d'),
-					"userID" => $dbuserID,
-					"usertype" => $dbusertype,
-					'uname' => $dbuname
-				);
-
-				$payment_array = array(
-					"invoiceID" => $params['invoice_id'],
-					"studentID"	=> $this->data['invoice']->studentID,
-					"paymentamount" => $params['amount'],
-					"paymenttype" => 'Paypal',
-					"paymentdate" => date('Y-m-d'),
-					"paymentmonth" => date('M'),
-					"paymentyear" => date('Y')
-				);
-
-				$this->payment_m->insert_payment($payment_array);
-
-				$studentID = $this->data['invoice']->studentID;
-				$getstudent = $this->student_m->get_student($studentID);
-				$nowamount = ($getstudent->paidamount)+($params['amount']);
-				$this->student_m->update_student(array('paidamount' => $nowamount), $studentID);
-
-				$this->invoice_m->update_invoice($array, $params['invoice_id']);
-				$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-
-  			} else {
-  				$this->session->set_flashdata('error', 'Payer id not found!');
-  			}
-  			//redirect(base_url("invoice/view/".$params['invoice_id']));
-  			redirect(base_url("invoice/view/".$params['invoice_id']));
-  		} else {
-
-      		//Failed transaction
-      		$this->session->set_flashdata('error', 'Payment not success!');
-  			redirect(base_url("invoice/view/".$params['invoice_id']));
-
-  		}
-  	}
-	/* Paypal payment end*/
 
 	function call_all_student() {
 		$classesID = $this->input->post('id');
@@ -793,29 +393,6 @@ class Invoice extends Admin_Controller {
 		return TRUE;
 	}
 
-	function unique_paymentmethod() {
-		$payment_method = '';
-		$payment_methods = $this->session->userdata("paymentMethod");
-		if($this->input->post('payment_method') && array_key_exists($this->input->post('payment_method'), $payment_methods)){
-			$payment_method = $payment_methods[$this->input->post('payment_method')];
-		}
-		if($payment_method === '0') {
-			$this->form_validation->set_message("unique_paymentmethod", "The %s field is required");
-	     	return FALSE;
-		} elseif($payment_method === 'Paypal') {
-			$api_config = array();
-			$get_configs = $this->payment_settings_m->get_order_by_config();
-			foreach ($get_configs as $key => $get_key) {
-				$api_config[$get_key->config_key] = $get_key->value;
-			}
-			if($api_config['paypal_api_username'] =="" || $api_config['paypal_api_password'] =="" || $api_config['paypal_api_signature']==""){
-				$this->form_validation->set_message("unique_paymentmethod", "Paypal settings required");
-				return FALSE;
-			}
-		}
-		return TRUE;
-	}
-
 	public function student_list() {
 		$studentID = $this->input->post('id');
 		if((int)$studentID) {
@@ -832,9 +409,6 @@ class Invoice extends Admin_Controller {
 		if ($usertype=="Admin") {
 			$table = "systemadmin";
 			$tableID = "systemadminID";
-		} elseif($usertype=="Accountant" || $usertype=="Librarian") {
-			$table = "user";
-			$tableID = "userID";
 		} else {
 			$table = strtolower($usertype);
 			$tableID = $table."ID";
