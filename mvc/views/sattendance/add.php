@@ -134,17 +134,6 @@
                                         <td data-title="<?=$this->lang->line('slno')?>">
                                             <?php echo $i; ?>
                                         </td>
-                                        <!-- <td data-title="<?=$this->lang->line('attendance_photo')?>">
-                                            <?php $array = array(
-                                                    "src" => base_url('uploads/images/'.$student->photo),
-                                                    'width' => '35px',
-                                                    'height' => '35px',
-                                                    'class' => 'img-rounded'
-
-                                                );
-                                                echo img($array);
-                                            ?>
-                                        </td> -->
                                         <td data-title="<?=$this->lang->line('attendance_name')?>">
                                             <?php echo $student->name; ?>
                                         </td>

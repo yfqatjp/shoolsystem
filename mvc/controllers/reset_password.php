@@ -19,7 +19,6 @@ class Reset_password extends Admin_Controller {
 		$this->load->model("reset_password_m");
 		$this->load->model("student_m");
 		$this->load->model("teacher_m");
-		$this->load->model("parentes_m");
 		$this->load->model("user_m");
 		$this->load->model("systemadmin_m");
 

@@ -17,13 +17,11 @@ class Sattendance extends Admin_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->model("student_m");
-		$this->load->model("parentes_m");
 		$this->load->model("sattendance_m");
 		$this->load->model("teacher_m");
 		$this->load->model("classes_m");
 		$this->load->model("subject_m");
 		$this->load->model("user_m");
-		$this->load->model("section_m");
 		$this->load->model("setting_m");
 		$this->load->model("routine_m");
 		$this->load->model("code_m");
@@ -68,11 +66,6 @@ class Sattendance extends Admin_Controller {
 
 	protected function subject_rules() {
 		$rules = array(
-			// array(
-			// 	'field' => 'classesID',
-			// 	'label' => $this->lang->line("classes_name"),
-			// 	'rules' => 'trim|required|xss_clean|max_length[11]|callback_check_classes'
-			// ),
 			array(
 				'field' => 'subjectID',
 				'label' => $this->lang->line("attendance_subject"),
@@ -102,27 +95,17 @@ class Sattendance extends Admin_Controller {
 			}
 			if((int)$id) {
 				$this->data['set'] = $id;
-				// $this->data['classes'] = $this->student_m->get_classes();
-				// $this->data['subjects'] = $this->subject_m->get_join_subject($id);
-				// $this->data['subjects'] = $this->subject_m->get();
-				// $this->data['students'] = $this->student_m->get_order_by_student(array('classesID' => $id));
 				$this->data['students'] = $this->student_m->get_order_by_studen_with_subject($id);
 				$this->data['routines'] = $this->routine_m->get_order_by_date(array('subjectID' => $id));
 
 				if($this->data['students']) {
-					$sections = $this->section_m->get_order_by_section(array("classesID" => $id));
-					$this->data['sections'] = $sections;
-					foreach ($sections as $key => $section) {
-						$this->data['allsection'][$section->section] = $this->student_m->get_order_by_student(array('classesID' => $id, "sectionID" => $section->sectionID));
-					}
+
 				} else {
 					$this->data['students'] = NULL;
 				}
 				$this->data["subview"] = "sattendance/index";
 				$this->load->view('_layout_main', $this->data);
 			} else {
-				// $this->data['classes'] = $this->student_m->get_classes();
-				// $this->data['subjects'] = $this->subject_m->get();
 				$this->data['students'] = NULL;
 				$this->data["subview"] = "sattendance/index";
 				$this->load->view('_layout_main', $this->data);
@@ -204,13 +187,9 @@ class Sattendance extends Admin_Controller {
 						$students = $this->student_m->get_order_by_studen_with_subject_and_date($subjectID, $date);
 						if(count($students)) {
 							foreach ($students as $key => $student) {
-								$section = $this->section_m->get_section($student->sectionID);
-								if($section) {
-									$this->data['students'][$key] = (object) array_merge( (array)$student, array('ssection' => $section->section));
-								} else {
-									$this->data['students'][$key] = (object) array_merge( (array)$student, array('ssection' => $student->section));
-								}
 
+								$this->data['students'][$key] = (object) array_merge( (array)$student, array('ssection' => $student->section));
+								
 								$studentID = $student->studentID;
 								if($this->data['setting']->attendance == "subject") {
 									$attendance_monthyear = $this->subjectattendance_m->get_order_by_sub_attendance(array("studentID" => $studentID, "classesID" => $student->classesID, "subjectID" => $subjectID, "monthyear" => $monthyear));
@@ -365,7 +344,7 @@ class Sattendance extends Admin_Controller {
 						$this->data['attendances'] = $this->sattendance_m->get_order_by_attendance(array("studentID" => $id, "classesID" => $url));
 					}
 
-					$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
+
 					$this->data["subview"] = "sattendance/view";
 					$this->load->view('_layout_main', $this->data);
 				} else {
@@ -389,45 +368,13 @@ class Sattendance extends Admin_Controller {
 					$this->data['attendances'] = $this->sattendance_m->get_order_by_attendance(array("studentID" => $student->studentID, "classesID" => $student->classesID));
 				}
 
-				$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
 				$this->data["subview"] = "sattendance/view";
 				$this->load->view('_layout_main', $this->data);
 			} else {
 				$this->data["subview"] = "error";
 				$this->load->view('_layout_main', $this->data);
 			}
-		} elseif($usertype == "Parent") {
-			$username = $this->session->userdata("username");
-			$parent = $this->parentes_m->get_single_parentes(array('username' => $username));
-			$this->data['allstudents'] = $this->student_m->get_order_by_student(array('parentID' => $parent->parentID));
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$checkstudent = $this->student_m->get_single_student(array('studentID' => $id));
-				if(count($checkstudent)) {
-					$classesID = $checkstudent->classesID;
-					$this->data['set'] = $id;
-					$this->data["student"] = $checkstudent;
-					$this->data['classes'] = $this->classes_m->get_classes($classesID);
-
-					if($this->data['setting']->attendance == "subject") {
-						$this->data['attendances'] = $this->subjectattendance_m->get_order_by_sub_attendance(array("studentID" => $id, "classesID" => $classesID));
-					} else {
-						$this->data['attendances'] = $this->sattendance_m->get_order_by_attendance(array("studentID" => $id, "classesID" => $classesID));
-					}
-
-					$this->data["section"] = $this->section_m->get_section($checkstudent->sectionID);
-
-					$this->data["subview"] = "sattendance/index_parent";
-					$this->load->view('_layout_main', $this->data);
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "sattendance/search_parent";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
+		}  else {
 			$this->data["subview"] = "error";
 			$this->load->view('_layout_main', $this->data);
 		}

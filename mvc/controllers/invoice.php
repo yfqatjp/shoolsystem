@@ -22,8 +22,6 @@ class Invoice extends Admin_Controller {
 		$this->load->model('payment_m');
 		$this->load->model("classes_m");
 		$this->load->model("student_m");
-		$this->load->model("parentes_m");
-		$this->load->model("section_m");
 		$this->load->model('user_m');
 		$this->load->model("payment_settings_m");
 		$language = $this->session->userdata('lang');

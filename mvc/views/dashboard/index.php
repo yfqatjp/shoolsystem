@@ -30,8 +30,7 @@
     <?php
     //部门主管不显示
     if($usertype != "TeacherManager" ) {
-   ?>
-   
+   ?>  
     <div class="col-lg-3 col-xs-6">
       <div class="small-box ">
           <a class="small-box-footer" href="<?=base_url('subject')?>">
@@ -49,7 +48,6 @@
           </a>
       </div>
     </div>
-<?php }?>
      <div class="col-lg-3 col-xs-6">
       <div class="small-box ">
           <a class="small-box-footer" href="<?=base_url('routine')?>">
@@ -85,6 +83,7 @@
           </a>
       </div>
     </div>
+<?php }?>
 
     <?php
     //教师，部门主管，销售，事务，需要签到
@@ -134,6 +133,7 @@
     //学生显示缴费记录
     if($usertype == "student" ) {
    ?>
+   <!-- 
      <div class="col-lg-3 col-xs-6">
       <div class="small-box ">
           <a class="small-box-footer" href="<?=base_url('invoice')?>">
@@ -150,7 +150,7 @@
               </div>
           </a>
       </div>
-    </div>
+    </div> -->
    <?php }?>
 
  </div>

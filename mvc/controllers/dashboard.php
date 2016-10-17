@@ -19,28 +19,18 @@ class Dashboard extends Admin_Controller {
 		parent::__construct();
 		$this->load->model('systemadmin_m');
 		$this->load->model("dashboard_m");
-	//	$this->load->model("automation_shudulu_m");
-	//	$this->load->model("automation_rec_m");
 		$this->load->model("setting_m");
-//		$this->load->model("user_m");
 		$this->load->model("student_m");
 		$this->load->model("classes_m");
 		$this->load->model("teacher_m");
 		$this->load->model("teacher_transport_m");
-//		$this->load->model("parentes_m");
 		$this->load->model("sattendance_m");
 		$this->load->model("subject_m");
 		$this->load->model("feetype_m");
 		$this->load->model("invoice_m");
 		$this->load->model("expense_m");
 		$this->load->model("payment_m");
-//		$this->load->model("lmember_m");
-		$this->load->model("issue_m");
 		$this->load->model("student_info_m");
-//		$this->load->model("parentes_m");
-//		$this->load->model('hmember_m');
-//		$this->load->model('tmember_m');
-//		$this->load->model('visitorinfo_m');
 		$this->load->model('routine_m');
 		$this->load->model("subject_teacher_details_m");
 		$this->load->model("tattendance_m");
@@ -83,13 +73,6 @@ class Dashboard extends Admin_Controller {
 			$this->data['teacher'] = $this->teacher_m->get_teacher();
 			$this->data['subject'] = $this->student_info_m->get_join_where_subject($this->data['user']->classesID);
 			$this->data['routines'] = $this->routine_m->get_join_all1($this->data['user']->classesID);
-/*			$lmember = $this->lmember_m->get_single_lmember(array('studentID' => $this->data['user']->studentID));
-			if($lmember) {
-				$this->data['issue'] = $this->issue_m->get_order_by_issue(array("lID" => $lmember->lID, 'return_date' => NULL));
-			} else {
-				$this->data['issue'] = NULL;
-			}
-			$this->data['invoice'] = $this->invoice_m->get_order_by_invoice(array("studentID" => $this->data['user']->studentID));*/
 		}
 		$this->data["subview"] = "dashboard/index";
 		$this->load->view('_layout_main', $this->data);
@@ -190,58 +173,7 @@ class Dashboard extends Admin_Controller {
 	}
 
 
-	function graphcall() {
-		$usertype = $this->session->userdata('usertype');
-		if($usertype == "Admin") {
-			$payments = $this->payment_m->get_order_by_payment(array("paymentyear" => date("Y")));
-	      	$lastEarn = 0;
-	      	$percent = 0;
-	      	$monthBalances = array();
-	      	$hightEarn['hight'] = 0;
-	      	$dataarr = array();
-	      	$allMonths = array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
-			if(count($payments)) {
-				foreach ($allMonths as $key => $allMonth) {
-					foreach ($payments as $key => $payment) {
-					    $paymentMonth = date("M", strtotime($payment->paymentdate));
-					    if($allMonth == $paymentMonth) {
-					      	$lastEarn+=$payment->paymentamount;
-					      	$monthBalances[$allMonth] = $lastEarn;
-					    } else {
-					      	if(!array_key_exists($allMonth, $monthBalances)) {
-					        	$monthBalances[$allMonth] = 0;
-					      	}
-					    }
-					 }
-
-				  	if($lastEarn > $hightEarn['hight']) {
-				    	$hightEarn['hight'] = $lastEarn;
-				  	}
-				  	$lastEarn = 0;
-				}
-
-				foreach ($monthBalances as $monthBalancekey => $monthBalance) {
-					$dataarr[] = $monthBalance;
-				}
-
-
-				$json = array("balance" => $dataarr);
-				header("Content-Type: application/json", true);
-				echo json_encode($json);
-				exit;
-			} else {
-				foreach ($allMonths as $allMonth) {
-					$dataarr[] = 0;
-				}
-				$json = array("balance" => $dataarr);
-				header("Content-Type: application/json", true);
-				echo json_encode($json);
-				exit;
-
-			}
-		}
-	}
 
 }
 

@@ -14,4 +14,4 @@ $lang['view'] = "视图";
 $lang['edit'] = "编辑";
 $lang['delete'] = "删除";
 $lang['add_expense'] = "增加费用";
-$lang['update_expense'] = "更新费用";
+

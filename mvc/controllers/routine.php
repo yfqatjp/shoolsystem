@@ -19,10 +19,8 @@ class Routine extends Admin_Controller {
 		$this->load->model("routine_m");
 		$this->load->model("classes_m");
 		$this->load->model("student_info_m");
-		$this->load->model("parentes_info_m");
-		$this->load->model("section_m");
+
 		$this->load->model("subject_m");
-		$this->load->model('parentes_m');
 		$this->load->model('student_m');
 		$language = $this->session->userdata('lang');
 		$this->lang->load('routine', $language);
@@ -41,58 +39,24 @@ class Routine extends Admin_Controller {
 	public function index() {
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" || $usertype == "TeacherManager" || $usertype == "Salesman"|| $usertype == "Receptionist") {
-			// $id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			// if((int)$id) {
-				// $this->data['set'] = $id;
-				// $this->data['classes'] = $this->routine_m->get_classes();
-				// $this->data['routines'] = $this->routine_m->get_routine_group_by($id);
+
 				$this->data['routines'] = $this->routine_m->get_routine_group_by();
 
 				if($this->data['routines']) {
-					// $sections = $this->section_m->get_order_by_section(array("classesID" => $id));
-					// $this->data['sections'] = $sections;
-					// foreach ($sections as $key => $section) {
-					// 	$this->data['allsection'][$section->section] = $this->routine_m->get_routine_group_by($id, $section->sectionID);
-					// }
+
 				} else {
 					$this->data['routines'] = NULL;
 				}
 
 				$this->data["subview"] = "routine/index";
 				$this->load->view('_layout_main', $this->data);
-			// } else {
-			// 	$this->data['classes'] = $this->routine_m->get_classes();
-			// 	$this->data["subview"] = "routine/search";
-			// 	$this->load->view('_layout_main', $this->data);
-			// }
+
 		} elseif($usertype == "Student") {
 			$student = 	$this->student_info_m->get_student_info();
 			$this->data['routines'] = $this->routine_m->get_join_all_wsection($student->classesID, $student->sectionID);
 			$this->data["subview"] = "routine/index";
 			$this->load->view('_layout_main', $this->data);
-		} elseif($usertype == "Parent") {
-			$username = $this->session->userdata("username");
-			$parent = $this->parentes_m->get_single_parentes(array('username' => $username));
-			$this->data['students'] = $this->student_m->get_order_by_student(array('parentID' => $parent->parentID));
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$checkstudent = $this->student_m->get_single_student(array('studentID' => $id));
-				if(count($checkstudent)) {
-					$classesID = $checkstudent->classesID;
-					$sectionID = $checkstudent->sectionID;
-					$this->data['set'] = $id;
-					$this->data['routines'] = $this->routine_m->get_join_all_wsection($classesID, $sectionID);
-					$this->data["subview"] = "routine/index_parent";
-					$this->load->view('_layout_main', $this->data);
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "routine/search_parent";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
+		}  else {
 			$this->data["subview"] = "error";
 			$this->load->view('_layout_main', $this->data);
 		}
@@ -100,16 +64,7 @@ class Routine extends Admin_Controller {
 
 	protected function rules() {
 		$rules = array(
-		// array(
-		// 'field' => 'classesID',
-		// 'label' => $this->lang->line("routine_classes"),
-		// 'rules' => 'trim|required|xss_clean|numeric|max_length[11]|callback_allclasses'
-		// ),
-		// array(
-		// 'field' => 'sectionID',
-		// 'label' => $this->lang->line("routine_section"),
-		// 'rules' => 'trim|required|xss_clean|numeric|max_length[11]|callback_allsection'
-		// ),
+
 		array(
 		'field' => 'subjectID',
 		'label' => $this->lang->line("routine_subject"),
@@ -135,13 +90,6 @@ class Routine extends Admin_Controller {
 			$this->data['classes'] = $this->classes_m->get_classes_1();
 			$classesID = $this->input->post("classesID");
 
-			// if($classesID != 0) {
-			// 	$this->data['subjects'] = $this->subject_m->get_order_by_subject(array('classesID' =>$classesID));
-			// 	$this->data['sections'] = $this->section_m->get_order_by_section(array("classesID" => $classesID));
-			// } else {
-			// 	$this->data['subjects'] = "empty";
-			// 	$this->data['sections'] = "empty";
-			// }
 			$this->data['subjects'] = $this->subject_m->get_order_by_subject();
 			$this->data['subjectID'] = 0;
 			$this->data['sectionID'] = 0;
@@ -207,13 +155,10 @@ class Routine extends Admin_Controller {
 	public function routinesbyclass(){
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" || $usertype == "TeacherManager" || $usertype == "Salesman"|| $usertype == "Receptionist") {
-			//$classesID = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			//$sectionID = htmlentities(mysql_real_escape_string($this->uri->segment(4)));
+
 			$subjectID = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 			$day = htmlentities(mysql_real_escape_string($this->uri->segment(4)));
-			// if((int)$classesID/* && (int)$sectionID*/){
 			if((int)$subjectID && $day){
-				// $this->data['classesID'] = $classesID;
 				$this->data['routines'] = $this->routine_m->get_join_all_wsection($subjectID, $day);
 				$this->data["subview"] = "routine/routinesbyclass";
 				$this->load->view('_layout_main', $this->data);
@@ -236,9 +181,7 @@ class Routine extends Admin_Controller {
 				$this->data['routine'] = $this->routine_m->get_routine($id);
 				if($this->data['routine']) {
 					$classID = $this->data['routine']->classesID;
-					// $this->data['sections'] = $this->section_m->get_order_by_section(array("classesID" => $classID));
-					// $this->data['subjects'] = $this->routine_m->get_subject($classID);
-					// $this->data['classes'] = $this->routine_m->get_classes();
+
 					$this->data['subjects'] = $this->subject_m->get_order_by_subject();
 					$this->data['set'] = $id;
 					if($_POST) {

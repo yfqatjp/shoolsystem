@@ -50,7 +50,7 @@ $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-$db['default']['password'] = '123456789';
+$db['default']['password'] = '12345678';
 $db['default']['database'] = 'school';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';

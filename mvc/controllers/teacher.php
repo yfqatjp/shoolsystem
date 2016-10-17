@@ -17,7 +17,6 @@ class Teacher extends Admin_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->model("teacher_m");
-		//$this->load->model("teacher_options_m");
 		$this->load->model("teacher_transport_m");
 		$this->load->model("reset_m");
 		$this->load->library("email");

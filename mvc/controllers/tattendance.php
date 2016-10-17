@@ -23,11 +23,9 @@ class Tattendance extends Admin_Controller {
 		$this->lang->load('tattendance', $language);
 		$this->load->model("classes_m");
 		$this->load->model("student_info_m");
-		//$this->load->model("parentes_info_m");
-		$this->load->model("section_m");
+
 		$this->load->model("subject_m");
 		$this->load->model("course_details_m");
-		$this->load->model('parentes_m');
 		$this->load->model('student_m');
 		$this->load->model("teacher_transport_m");
 	}
@@ -572,35 +570,6 @@ class Tattendance extends Admin_Controller {
 	    }
 	}
 
-	public function print_preview() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if ((int)$id) {
-				$this->data["teacher"] = $this->teacher_m->get_teacher($id);
-				if($this->data["teacher"]) {
-				    $this->load->library('html2pdf');
-				    $this->html2pdf->folder('./assets/pdfs/');
-				    $this->html2pdf->filename('Report.pdf');
-				    $this->html2pdf->paper('a4', 'landscape');
-				    $this->data['panel_title'] = $this->lang->line('panel_title');
-					$this->data['attendances'] = $this->tattendance_m->get_order_by_tattendance(array("teacherID" => $id));
-					$html = $this->load->view('tattendance/print_preview', $this->data, true);
-					$this->html2pdf->html($html);
-					$this->html2pdf->create();
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
 
 
 
@@ -634,7 +603,7 @@ class Tattendance extends Admin_Controller {
 		$teacher_transport_ID = $this->input->post('teacher_transport_ID');
 
 		if((int)$teacher_transport_ID) {
-			//$allsection = $this->section_m->get_order_by_section(array('classesID' => $classID));
+
 			$transport = $this->teacher_transport_m->get_order_by_teacher_transport(array('teacher_transport_ID' => $teacher_transport_ID));
 			//echo "<option value='0'>", $this->lang->line("routine_select_section"),"</option>";
 			

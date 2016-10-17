@@ -21,7 +21,6 @@ class Eattendance extends Admin_Controller {
 		$this->load->model('subject_m');
 		$this->load->model("eattendance_m");
 		$this->load->model("classes_m");
-		$this->load->model("section_m");
 		$language = $this->session->userdata('lang');
 		$this->lang->load('eattendance', $language);	
 	}
@@ -82,8 +81,7 @@ class Eattendance extends Admin_Controller {
 						if(count($this->data['students'])) {
 
 							if($this->data['students']) {
-								$sections = $this->section_m->get_order_by_section(array("classesID" => $classesID));
-								$this->data['sections'] = $sections;
+								$this->data['sections'] = 0;
 								foreach ($sections as $key => $section) {
 									$this->data['allsection'][$section->section] = $this->student_m->get_order_by_student(array('classesID' => $classesID, "sectionID" => $section->sectionID));
 								}
@@ -91,14 +89,6 @@ class Eattendance extends Admin_Controller {
 								$this->data['students'] = NULL;
 							}
 
-							// foreach ($students as $key => $student) {
-							// 	$section = $this->section_m->get_section($student->sectionID);
-							// 	if($section) {
-							// 		$this->data['students'][$key] = (object) array_merge( (array)$student, array('ssection' => $section->section));
-							// 	} else {
-							// 		$this->data['students'][$key] = (object) array_merge( (array)$student, array('ssection' => $student->section));
-							// 	}
-							// }
 							$this->data['examID'] = $examID;
 							$this->data['classesID'] = $classesID;
 							$this->data['subjectID'] = $subjectID;
@@ -148,7 +138,7 @@ class Eattendance extends Admin_Controller {
 						$students = $this->student_m->get_order_by_student(array("classesID" => $classesID));
 						if(count($students)) {
 							foreach ($students as $key => $student) {
-								$section = $this->section_m->get_section($student->sectionID);
+								$section = 0;
 								if($section) {
 									$this->data['students'][$key] = (object) array_merge( (array)$student, array('ssection' => $section->section));
 								} else {

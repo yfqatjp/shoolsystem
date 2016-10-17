@@ -1,6 +1,6 @@
 <?php
 
-$lang['panel_title'] = "轮廓";
+$lang['panel_title'] = "个人属性";
 $lang['profile_roll'] = "滚";
 $lang['profile_email'] = "电子邮件";
 $lang['profile_dob'] = "出生日期";

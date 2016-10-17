@@ -17,7 +17,7 @@ class Profile extends Admin_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->model("student_m");
-		$this->load->model("parentes_m");
+
 		$this->load->model("teacher_m");
 		$this->load->model("user_m");
 		$this->load->model("systemadmin_m");
@@ -57,17 +57,7 @@ class Profile extends Admin_Controller {
 			$this->data["student"] = $this->student_m->get_student($student->studentID);
 			$this->data["class"] = $this->student_m->get_class($student->classesID);
 			if($this->data["student"] && $this->data["class"]) {
-				$this->data["parent"] = $this->parentes_m->get_parentes($student->parentID);
-				$this->data["subview"] = "profile/index";
-				$this->load->view('_layout_main', $this->data);
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} elseif($usertype == "Parent") {
-			$parentes = $this->parentes_m->get_single_parentes(array("username" => $username));
-			if($parentes) {
-				$this->data['parentes'] = $parentes;
+			
 				$this->data["subview"] = "profile/index";
 				$this->load->view('_layout_main', $this->data);
 			} else {

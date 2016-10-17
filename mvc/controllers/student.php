@@ -18,8 +18,6 @@ class Student extends Admin_Controller {
 		parent::__construct();
 		$this->load->model("student_m");
 		$this->load->model("student_custom_course_m");
-		$this->load->model("parentes_m");
-		$this->load->model("section_m");
 		$this->load->model("user_m");
 		$this->load->model("classes_m");
 		$this->load->model("invoice_m");
@@ -35,8 +33,6 @@ class Student extends Admin_Controller {
 		$language = $this->session->userdata('lang');
 		$this->lang->load('student', $language);
 		$this->lang->load('invoice', $language);
-		// $this->data['salesmans'] = $this->user_m->get_order_by_user(array('usertype' => 'Salesman'));
-		//$this->data['salesmans'] = $this->user_m->get_order_by_user();
 		$this->data['salesmans'] = $this->teacher_m->get_teacher_type_all(array('Salesman','Receptionist','TeacherManager'));
 		$this->data['subjects'] = $this->subject_m->get_subject();
 	}
@@ -67,7 +63,6 @@ class Student extends Admin_Controller {
 				$this->data['source_memo'] = $source_memo;
 				$this->data['possibility'] = $possibility;
 				$this->data['paymentflag'] = $paymentflag;				
-				//$this->data['classes'] = $this->student_m->get_classes();
 				$this->data['classes'] = $this->student_m->get_classes_join();
 				$this->data['studentstate'] = $studentstate;
 				$this->data['querystring'] = $querystring;
@@ -83,15 +78,10 @@ class Student extends Admin_Controller {
 					$this->data['class_list'] = array();
 				}
 				
-				//$this->data['students'] = $this->student_m->get_order_by_student(array('classesID' => $id));
 				$this->data['students'] = $this->student_m->get_student_search($id,$category,$source,$paymentflag,$studentstate,$querystring,$source_memo,$possibility,$salesman_list,$class_list);
 
 				if($this->data['students']) {
-					$sections = $this->section_m->get_order_by_section(array("classesID" => $id));
-					$this->data['sections'] = $sections;
-					foreach ($sections as $key => $section) {
-						$this->data['allsection'][$section->sectionID] = $this->student_m->get_order_by_student(array('classesID' => $id, "sectionID" => $section->sectionID));
-					}
+
 				} else {
 					$this->data['students'] = NULL;
 				}
@@ -137,11 +127,7 @@ class Student extends Admin_Controller {
 					'label' => $this->lang->line("student_sex"),
 					'rules' => 'trim|required|max_length[10]|xss_clean'
 			),							
-			// array(
-			// 	'field' => 'dob',
-			// 	'label' => $this->lang->line("student_dob"),
-			// 	'rules' => 'trim|required|max_length[10]|callback_date_valid|xss_clean'
-			// ),							
+					
 			array(
 				'field' => 'input_date',
 				'label' => $this->lang->line("student_input_date"),
@@ -193,51 +179,6 @@ class Student extends Admin_Controller {
 					'label' => $this->lang->line("student_possibility"),
 					'rules' => 'trim|required|max_length[200]|xss_clean'
 			),															
-	       /*array(
-				'field' => 'classesID',
-				'label' => $this->lang->line("student_classes"),
-				'rules' => 'trim|required|numeric|max_length[11]|xss_clean|callback_unique_classesID'
-			),
-			array(
-				'field' => 'sectionID',
-				'label' => $this->lang->line("student_section"),
-				//'rules' => 'trim|required|numeric|max_length[11]|xss_clean|callback_unique_sectionID'
-				'rules' => 'trim|numeric|max_length[11]|xss_clean|callback_check_enroll'
-			),
-			array(
-				'field' => 'roll',
-				'label' => $this->lang->line("student_roll"),
-				'rules' => 'trim|required|max_length[40]|callback_unique_roll|xss_clean'
-			),
-
-			array(
-				'field' => 'photo',
-				'label' => $this->lang->line("student_photo"),
-				'rules' => 'trim|max_length[200]|xss_clean'
-			),
-			array(
-						'field' => 'subjectStartdate',
-						'label' => $this->lang->line("student_subjectStartdate"),
-					//	'rules' => 'trim|max_length[200]|xss_clean'
-					    'rules' => 'trim|max_length[10]|callback_date_valid|xss_clean|callback_check_enroll'
-			),
-			array(
-						'field' => 'subjectEnddate',
-						'label' => $this->lang->line("student_subjectStartdate"),
-						 'rules' => 'trim|max_length[10]|callback_date_valid|xss_clean|callback_check_enroll'
-			),
-			array(
-				'field' => 'username',
-				'label' => $this->lang->line("student_username"),
-				//'rules' => 'trim|required|min_length[4]|max_length[40]|xss_clean|callback_lol_username'
-				'rules' => 'trim|min_length[4]|max_length[40]|xss_clean|callback_lol_username'
-			),
-			array(
-				'field' => 'password',
-				'label' => $this->lang->line("student_password"),
-				//'rules' => 'trim|required|min_length[4]|max_length[40]|xss_clean'
-				'rules' => 'trim|min_length[4]|max_length[40]|xss_clean'
-			)*/
 		);
 		return $rules;
 	}
@@ -252,8 +193,7 @@ class Student extends Admin_Controller {
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" || $usertype == "TeacherManager"|| $usertype == "Salesman"|| $usertype == "Receptionist") {
 			$this->data['classes'] = $this->student_m->get_classes();
-			//$this->data['sections'] = $this->section_m->get_section();
-			//$this->data['parents'] = $this->parentes_m->get_parentes();
+
 
 			$classesID = $this->input->post("classesID");
 
@@ -381,19 +321,18 @@ class Student extends Admin_Controller {
 	public function addcustomer() {
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" || $usertype == "TeacherManager"  || $usertype == "Salesman"|| $usertype == "Receptionist") {
-			//$this->data['classes'] = $this->student_m->get_classes();
-			//$this->data['sections'] = $this->section_m->get_section();
-			//$this->data['parents'] = $this->parentes_m->get_parentes();
+
+
 				
 			$classesID = $this->input->post("classesID");
 	
 			if($classesID != 0) {
-				$this->data['sections'] = $this->section_m->get_order_by_section(array("classesID" =>$classesID));
+			//	$this->data['sections'] = $this->section_m->get_order_by_section(array("classesID" =>$classesID));
 			} else {
 				$classesID　= 0;
-				$this->data['sections'] = "empty";
+			//	$this->data['sections'] = "empty";
 			}
-			$this->data['sectionID'] = $this->input->post("sectionID");
+		//	$this->data['sectionID'] = $this->input->post("sectionID");
 	
 			if($_POST) {
 				$rules = $this->rules();
@@ -403,24 +342,8 @@ class Student extends Admin_Controller {
 					$this->data["subview"] = "student/addcustomer";
 					$this->load->view('_layout_main', $this->data);
 				} else {
-	
-					$sectionID = $this->input->post("sectionID");
-					if($sectionID == 0) {
-						$this->data['sectionID'] = 0;
-					} else {
-						$this->data['sections'] = $this->section_m->get_allsection($classesID);
-						$this->data['sectionID'] = $this->input->post("sectionID");
-					}
-	
-				/*	$dbmaxyear = $this->student_m->get_order_by_student_single_max_year($classesID);
-					$maxyear = "";
-					if(count($dbmaxyear)) {
-						$maxyear = $dbmaxyear->year;
-					} else {
-						$maxyear = date("Y");
-					}
-	            */
-					$section = $this->section_m->get_section($sectionID);
+
+					$section = 0;
 					$array = array();
 					$array["salesmanID"] = $this->input->post("salesmanID");
 					$array["name"] = $this->input->post("name");
@@ -444,7 +367,6 @@ class Student extends Admin_Controller {
 					//未报名学生状态为1
 					$array["classesID"] = 1;
 					$array["sectionID"] = $this->input->post("sectionID");
-					//$array["section"] = $section->section;
 					$array["section"] = 0;
 					$array["roll"] = "";
 					$array["username"] = "";
@@ -570,7 +492,6 @@ class Student extends Admin_Controller {
 
 				$this->data['classes'] = $this->student_m->get_classes_join();
 				$this->data['student'] = $this->student_m->get_student($id);
-				$this->data['parents'] = $this->parentes_m->get_parentes();
 				$state = htmlentities(mysql_real_escape_string($this->uri->segment(5)));
 				
 				if($state != null && isset($state)){
@@ -579,7 +500,8 @@ class Student extends Admin_Controller {
 
 				$classesID = $this->data['student']->classesID;
 
-				$this->data['sections'] = $this->section_m->get_order_by_section(array('classesID' => $classesID));
+				//$this->data['sections'] = $this->section_m->get_order_by_section(array('classesID' => $classesID));
+				
 				$this->data['set'] = $url;
 				if($this->data['student']) {
 					if($_POST) {
@@ -691,10 +613,8 @@ class Student extends Admin_Controller {
 							
 							}
 							
-							$section = $this->section_m->get_section($this->input->post("sectionID"));
-							// $array["section"] = $section->section;
+
 							$array["roll"] = $this->input->post("roll");
-							//$array["parentID"] = $this->input->post("guargianID");
 							//父母选择转换
 							if(null == ($this->input->post('guargianID'))){
 								$array['parentID'] = 0;
@@ -841,11 +761,8 @@ class Student extends Admin_Controller {
 				$this->data["evaluations"] = $this->evaluation_m->get_order_by_evaluation(array('studentID' => $id));
 				if($this->data["student"]) {				
 					$this->data["class"] = $this->student_m->get_class($this->data['student']->classesID);
-					$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
 					$this->data['set'] = $this->data['student']->classesID;
-					if ($this->data["student"]->parentID) {
-						$this->data["parent"] = $this->parentes_m->get_parentes($this->data["student"]->parentID);
-					}
+
 					
 					
 					$this->data["invoice"] = $this->invoice_m->get_single_invoice(array('studentID' => $id));
@@ -866,88 +783,6 @@ class Student extends Admin_Controller {
 		}
 	}
 
-	public function print_preview() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			$url = htmlentities(mysql_real_escape_string($this->uri->segment(4)));
-
-			if ((int)$id && (int)$url) {
-				$this->data["student"] = $this->student_m->get_student($id);
-				$this->data["class"] = $this->student_m->get_class($url);
-				if($this->data["student"] && $this->data["class"]) {
-					$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
-				    $this->load->library('html2pdf');
-				    $this->html2pdf->folder('./assets/pdfs/');
-				    $this->html2pdf->filename('Report.pdf');
-				    $this->html2pdf->paper('a4', 'portrait');
-				    $this->data['panel_title'] = $this->lang->line('panel_title');
-					$this->data["parent"] = $this->parentes_m->get_parentes($this->data["student"]->parentID);
-					$html = $this->load->view('student/print_preview', $this->data, true);
-					$this->html2pdf->html($html);
-					$this->html2pdf->create();
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-	public function send_mail() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Admin") {
-			$id = $this->input->post('id');
-			$url = $this->input->post('set');
-			if ((int)$id && (int)$url) {
-				$this->data["student"] = $this->student_m->get_student($id);
-				$this->data["class"] = $this->student_m->get_class($url);
-				if($this->data["student"] && $this->data["class"]) {
-					$this->data["section"] = $this->section_m->get_section($this->data['student']->sectionID);
-				    $this->load->library('html2pdf');
-				    $this->html2pdf->folder('uploads/report');
-				    $this->html2pdf->filename('Report.pdf');
-				    $this->html2pdf->paper('a4', 'portrait');
-				    $this->data['panel_title'] = $this->lang->line('panel_title');
-					$this->data["parent"] = $this->parentes_m->get_parentes($this->data["student"]->parentID);
-					$html = $this->load->view('student/print_preview', $this->data, true);
-					$this->html2pdf->html($html);
-					$this->html2pdf->create('save');
-
-					if($path = $this->html2pdf->create('save')) {
-					$this->load->library('email');
-					$this->email->set_mailtype("html");
-					$this->email->from($this->data["siteinfos"]->email, $this->data['siteinfos']->sname);
-					$this->email->to($this->input->post('to'));
-					$this->email->subject($this->input->post('subject'));
-					$this->email->message($this->input->post('message'));
-					$this->email->attach($path);
-						if($this->email->send()) {
-							$this->session->set_flashdata('success', $this->lang->line('mail_success'));
-						} else {
-							$this->session->set_flashdata('error', $this->lang->line('mail_error'));
-						}
-					}
-
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
 
 	public function delete() {
 		$usertype = $this->session->userdata("usertype");
@@ -1073,7 +908,7 @@ class Student extends Admin_Controller {
 		$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 		if((int)$id) {
 			$student_info = $this->student_m->get_single_student(array('studentID' => $id));
-			$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
+			$tables = array('student' => 'student', 'teacher' => 'teacher');
 			$array = array();
 			$i = 0;
 			foreach ($tables as $table) {
@@ -1092,7 +927,7 @@ class Student extends Admin_Controller {
 				return TRUE;
 			}
 		} else {
-			$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
+			$tables = array('student' => 'student', 'teacher' => 'teacher');
 			$array = array();
 			$i = 0;
 			foreach ($tables as $table) {
@@ -1208,7 +1043,7 @@ class Student extends Admin_Controller {
 		$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 		if((int)$id) {
 			$student_info = $this->student_m->get_single_student(array('studentID' => $id));
-			$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
+			$tables = array('student' => 'student', 'teacher' => 'teacher');
 			$array = array();
 			$i = 0;
 			foreach ($tables as $table) {
@@ -1227,7 +1062,7 @@ class Student extends Admin_Controller {
 				return TRUE;
 			}
 		} else {
-			$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
+			$tables = array('student' => 'student', 'teacher' => 'teacher');
 			$array = array();
 			$i = 0;
 			foreach ($tables as $table) {

@@ -18,7 +18,15 @@
                                 }
                                 echo "<p>".$name."</p>";
                             ?>
-                            <a href="<?=base_url("profile/index")?>">
+                           <?php 
+                                    $usertype = $this->session->userdata('usertype');
+                                    if($usertype == "Admin" ){?>                                    	
+                                         <a href="<?=base_url("profile/index")?>">
+                                    <?php } elseif ($usertype == "Teacher" || $usertype == "Salesman"|| $usertype == "Receptionist"|| $usertype == "TeacherManager"){?>
+                                              <a href="<?=base_url("teacher/view/".$this->session->userdata('loginuserID'))?>">
+                                    <?php } elseif($usertype == "Student") { ?>
+                                         <a href="<?=base_url("/student/view/".$this->session->userdata('loginuserID')."/3")?>">
+                                    <?php } ?>   
                                 <i class="fa fa-hand-o-right color-green"></i>
                                 <?=$this->lang->line($this->session->userdata("usertype"))?>
                             </a>
@@ -51,13 +59,6 @@
                             }
                         ?>
 
-                        <?php
-                         /*   if($usertype == "Admin" || $usertype == "TeacherManager")  {
-                                echo '<li>';
-                                    echo anchor('user/index', '<i class="fa fa-users"></i><span>'.$this->lang->line('menu_user').'</span>');
-                                echo '</li>';
-                            }*/
-                        ?>
 
                         <?php
                              if($usertype == "Admin" || $usertype == "TeacherManager") {
@@ -144,24 +145,9 @@
                                     <i class="fa fa-angle-left pull-right"></i>
                                 </a>
                                 <ul class="treeview-menu">
-                                <!-- 
-                                    <li>
-                                        <?php echo anchor('feetype/index', '<i class="fa icon-feetype"></i><span>'.$this->lang->line('menu_feetype').'</span>'); ?>
-                                    </li>
-                                     -->
                                     <li>
                                         <?php echo anchor('invoice/index', '<i class="fa icon-invoice"></i><span>'.$this->lang->line('menu_invoice').'</span>'); ?>
                                     </li>
-                                    <!-- 
-                                    <li>
-                                        <?php echo anchor('balance/index', '<i class="fa icon-payment"></i><span>'.$this->lang->line('menu_balance').'</span>'); ?>
-                                    </li>
-                                    <li>
-                                        <?php echo anchor('expense/index', '<i class="fa icon-expense"></i><span>'.$this->lang->line('menu_expense').'</span>'); ?>
-                                    </li>
-                                    <li>
-                                        <?php echo anchor('payment_settings/index', '<i class="fa icon-paymentsettings"></i><span>'.$this->lang->line('menu_paymentsettings').'</span>'); ?>
-                                    </li> -->
                                 </ul>
                             </li>
                         <?php } ?>
@@ -185,13 +171,6 @@
                         <?php } ?>
 
 
-                        <?php
-                            if($this->session->userdata("usertype") == "Admin") {
-                             //   echo '<li>';
-                             //       echo anchor('systemadmin/index', '<i class="fa icon-systemadmin"></i><span>'.$this->lang->line('menu_systemadmin').'</span>');
-                             //   echo '</li>';
-                            }
-                        ?>
                         
                         <?php if($usertype == "Admin") { ?>
                             <li class="treeview">

@@ -27,9 +27,6 @@ $lang['action'] = "Action";
 $lang['view'] = 'View';
 $lang['edit'] = 'Edit';
 $lang['delete'] = 'Delete';
-$lang['pdf_preview'] = 'PDF Preview';
-$lang['print'] = 'Print';
-$lang["mail"] = "Send Pdf to Mail";
 
 // /* Add Language */
 

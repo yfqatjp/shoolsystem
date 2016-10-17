@@ -18,8 +18,6 @@ Class Subject extends Admin_Controller {
 		parent::__construct();
 		$this->load->model("subject_m");
 		$this->load->model("student_info_m");
-		$this->load->model("parentes_info_m");
-		$this->load->model("parentes_m");
 		$this->load->model("classes_m");
 		$this->load->model("teacher_m");
 		$this->load->model("student_m");
@@ -37,44 +35,12 @@ Class Subject extends Admin_Controller {
 			$this->data['subjects'] = $this->subject_m->get();
 			$this->data["subview"] = "subject/index";
 			$this->load->view('_layout_main', $this->data);
-			// $id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			// if((int)$id) {
-			// 	$this->data['set'] = $id;
-			// 	$this->data['classes'] = $this->student_m->get_classes();
-			// 	$this->data['subjects'] = $this->subject_m->get_join_subject($id);
-			// 	$this->data["subview"] = "subject/index";
-			// 	$this->load->view('_layout_main', $this->data);
-			// } else {
-			// 	$this->data['classes'] = $this->student_m->get_classes();
-			// 	$this->data["subview"] = "subject/search";
-			// 	$this->load->view('_layout_main', $this->data);
-			// }
-		} elseif($usertype == "Student" && $usertype != "Accountant") {
+
+		} elseif($usertype == "Student") {
 			$student = $this->student_info_m->get_student_info();
 			$this->data['subjects'] = $this->student_info_m->get_join_where_subject($student->classesID);
 			$this->data["subview"] = "subject/index";
 			$this->load->view('_layout_main', $this->data);
-		} elseif($usertype == "Parent") {
-			$username = $this->session->userdata("username");
-			$parent = $this->parentes_m->get_single_parentes(array('username' => $username));
-			$this->data['students'] = $this->student_m->get_order_by_student(array('parentID' => $parent->parentID));
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$checkstudent = $this->student_m->get_single_student(array('studentID' => $id));
-				if(count($checkstudent)) {
-					$classesID = $checkstudent->classesID;
-					$this->data['set'] = $id;
-					$this->data['subjects'] = $this->subject_m->get_join_subject($classesID);
-					$this->data["subview"] = "subject/index_parent";
-					$this->load->view('_layout_main', $this->data);
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "subject/search_parent";
-				$this->load->view('_layout_main', $this->data);
-			}
 		} else {
 			$this->data["subview"] = "error";
 			$this->load->view('_layout_main', $this->data);
@@ -83,16 +49,6 @@ Class Subject extends Admin_Controller {
 
 	protected function rules() {
 		$rules = array(
-				// array(
-				// 	'field' => 'classesID', 
-				// 	'label' => $this->lang->line("subject_class_name"), 
-				// 	'rules' => 'trim|numeric|required|xss_clean|max_length[11]|callback_allclasses'
-				// ),
-			/*	 array(
-				 	'field' => 'subjectgroup', 
-				 	'label' => $this->lang->line("subject_group"), 
-				 	'rules' => 'trim|required|xss_clean|max_length[100]'
-				 ),*/
 				array(
 						'field' => 'subject_group',
 						'label' => $this->lang->line("subject_group"),
@@ -103,16 +59,6 @@ Class Subject extends Admin_Controller {
 					'label' => $this->lang->line("subject_name"), 
 					'rules' => 'trim|required|xss_clean|max_length[60]|callback_unique_subject'
 				), 
-				// array(
-				// 	'field' => 'subject_author', 
-				// 	'label' => $this->lang->line("subject_author"), 
-				// 	'rules' => 'trim|xss_clean|max_length[100]'
-				// ), 
-				// array(
-				// 	'field' => 'subject_code', 
-				// 	'label' => $this->lang->line("subject_code"),
-				// 	'rules' => 'trim|required|max_length[20]|xss_clean|callback_unique_subject_code'
-				// ),
 				array(
 					'field' => 'amount',
 					'label' => $this->lang->line("subject_amount"),
@@ -127,8 +73,7 @@ Class Subject extends Admin_Controller {
 		if($usertype == "Admin" || $usertype == "TeacherManager" ) {
 			$this->data['classes'] = $this->subject_m->get_classes();
 			$this->data['teachers'] = $this->teacher_m->get_teacher();
-			
-			//$this->data['subjectgroups'] = $this->code_m->get_order_by_code(array("codeName"=>"subjectGroup"));			
+					
 			$this->data['subjectgroups'] = $this->code_m->getcodeToArray(array('codeName'=>'subjectGroup'));
 			
 			if($_POST) {
