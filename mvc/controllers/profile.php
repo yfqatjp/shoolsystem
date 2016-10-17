@@ -32,26 +32,6 @@ class Profile extends Admin_Controller {
 			$this->data['admin'] = $this->systemadmin_m->get_systemadmin(array('username' => $username));
 			$this->data["subview"] = "profile/index";
 			$this->load->view('_layout_main', $this->data);
-		} elseif($usertype == "Librarian" || $usertype == "Accountant"|| $usertype == "Salesman"|| $usertype == "Receptionist") {
-			$user = $this->user_m->get_single_user(array("username" => $username));
-			if($user) {
-				$this->data['user'] = $user;
-				$this->data["subview"] = "profile/index";
-				$this->load->view('_layout_main', $this->data);
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} elseif($usertype == "Teacher" || $usertype == "TeacherManager") {
-			$teacher = $this->teacher_m->get_single_teacher(array('username' => $username));
-			if($teacher) {
-				$this->data['teacher'] = $teacher;
-				$this->data["subview"] = "profile/index";
-				$this->load->view('_layout_main', $this->data);
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
 		} elseif($usertype == "Student") {
 			$student = $this->student_m->get_single_student(array('username' => $username));
 			$this->data["student"] = $this->student_m->get_student($student->studentID);

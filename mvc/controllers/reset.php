@@ -114,7 +114,7 @@ class Reset extends CI_Controller {
 							$password = $this->input->post('newpassword');
 							$email = $dbreset->email;
 
-							$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
+							$tables = array('student' => 'student', 'teacher' => 'teacher', 'systemadmin' => 'systemadmin');
 							foreach ($tables as $table) {
 								$dbuser = $this->reset_m->get_table_users($table, $email);
 								if(count($dbuser)) {

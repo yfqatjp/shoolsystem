@@ -325,31 +325,7 @@ class Invoice extends Admin_Controller {
 				$this->data["subview"] = "error";
 				$this->load->view('_layout_main', $this->data);
 			}
-		} elseif($usertype == "Parent") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$username = $this->session->userdata("username");
-				$parent = $this->student_m->get_parent_info($username);
-				$this->data["invoice"] = $this->invoice_m->get_single_invoice(array('invoiceID' => $id));
-				if($this->data['invoice']) {
-					$getstudent = $this->student_m->get_single_student(array("studentID" => $this->data['invoice']->studentID));
-					if($this->data['invoice'] && ($parent->parentID == $getstudent->parentID)) {
-						$this->data["student"] = $this->student_m->get_student($this->data["invoice"]->studentID);
-						$this->data["subview"] = "invoice/view";
-						$this->load->view('_layout_main', $this->data);
-					} else {
-						$this->data["subview"] = "error";
-						$this->load->view('_layout_main', $this->data);
-					}
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
+		}else {
 			$this->data["subview"] = "error";
 			$this->load->view('_layout_main', $this->data);
 		}
@@ -639,108 +615,13 @@ class Invoice extends Admin_Controller {
 				$this->data["subview"] = "error";
 				$this->load->view('_layout_main', $this->data);
 			}
-		} elseif($usertype == "Parent") {
-			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
-			if((int)$id) {
-				$this->data['invoice'] = $this->invoice_m->get_invoice($id);
-				$username = $this->session->userdata("username");
-				$this->data["invoice"] = $this->invoice_m->get_invoice($id);
-
-				if($this->data["invoice"]) {
-					$getstudent = $this->student_m->get_single_student(array("studentID" => $this->data['invoice']->studentID));
-					if($this->data['invoice'] && ($this->data['invoice']->studentID == $getstudent->studentID)) {
-						if(($this->data['invoice']->paidamount != $this->data['invoice']->amount) && ($this->data['invoice']->status == 0 || $this->data['invoice']->status == 1)) {
-							if($_POST) {
-								$rules = $this->payment_rules();
-								unset($rules[1]);
-								$this->form_validation->set_rules($rules);
-								if ($this->form_validation->run() == FALSE) {
-									$this->data["subview"] = "invoice/payment";
-									$this->load->view('_layout_main', $this->data);
-								} else {
-									$payable_amount = $this->input->post('amount')+$this->data['invoice']->paidamount;
-									if ($payable_amount > $this->data['invoice']->amount) {
-										$this->session->set_flashdata('error', 'Payment amount is much than invoice amount');
-										redirect(base_url("invoice/payment/$id"));
-									} else {
-										$this->post_data = $this->input->post();
-										$this->post_data['id'] = $id;
-										$this->invoice_data = $this->invoice_m->get_invoice($id);
-										$this->Paypal();
-									}
-								}
-							} else {
-								$this->data["subview"] = "invoice/payment";
-								$this->load->view('_layout_main', $this->data);
-							}
-						} else {
-							$this->data["subview"] = "error";
-							$this->load->view('_layout_main', $this->data);
-						}
-					} else {
-						$this->data["subview"] = "error";
-						$this->load->view('_layout_main', $this->data);
-					}
-
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
+		}  else {
 			$this->data["subview"] = "error";
 			$this->load->view('_layout_main', $this->data);
 		}
 	}
 
-	/* Paypal payment start*/
-	public function Paypal() {
-		$api_config = array();
-		$get_configs = $this->payment_settings_m->get_order_by_config();
-		foreach ($get_configs as $key => $get_key) {
-			$api_config[$get_key->config_key] = $get_key->value;
-		}
-		$this->data['set_key'] = $api_config;
-		if($api_config['paypal_api_username'] =="" || $api_config['paypal_api_password'] =="" || $api_config['paypal_api_signature']==""){
-			$this->session->set_flashdata('error', 'Paypal settings not available');
-			redirect($_SERVER['HTTP_REFERER']);
-		} else {
-			$this->item_data = $this->post_data;
-			$this->invoice_info = (array) $this->invoice_data;
 
-			$params = array(
-	  		'cancelUrl' 	=> base_url('invoice/getSuccessPayment'),
-	  		'returnUrl' 	=> base_url('invoice/getSuccessPayment'),
-	  		'invoice_id'	=> $this->item_data['id'],
-	    	'name'		=> $this->invoice_info['student'],
-	    	'description' 	=> $this->invoice_info['feetype'],
-	    	'amount' 	=> number_format(floatval($this->item_data['amount']),2),
-	    	'currency' 	=> $this->data["siteinfos"]->currency_code,
-			);
-			$this->session->set_userdata("params", $params);
-			$gateway = Omnipay::create('PayPal_Express');
-			$gateway->setUsername($api_config['paypal_api_username']);
-			$gateway->setPassword($api_config['paypal_api_password']);
-			$gateway->setSignature($api_config['paypal_api_signature']);
-
-			$gateway->setTestMode($api_config['paypal_demo']);
-
-			$response = $gateway->purchase($params)->send();
-
-			if ($response->isSuccessful()) {
-				// payment was successful: update database
-			} elseif ($response->isRedirect()) {
-				$response->redirect();
-			} else {
-			  // payment failed: display message to customer
-			  echo $response->getMessage();
-			}
-		}
-		/*omnipay Paypal end*/
-	}
 
 	public function getSuccessPayment() {
   		$userID = $this->userID();
@@ -785,19 +666,9 @@ class Invoice extends Admin_Controller {
 					$dbuserID = $user->systemadminID;
 					$dbusertype = $user->usertype;
 					$dbuname = $user->name;
-				} elseif($usertype == "Accountant") {
-					$user = $this->user_m->get_username_row("user", array("username" => $username));
-					$dbuserID = $user->userID;
-					$dbusertype = $user->usertype;
-					$dbuname = $user->name;
-				} elseif($usertype == "Student") {
+				}  elseif($usertype == "Student") {
 					$user = $this->user_m->get_username_row("student", array("username" => $username));
 					$dbuserID = $user->studentID;
-					$dbusertype = $user->usertype;
-					$dbuname = $user->name;
-				} elseif($usertype == "Parent") {
-					$user = $this->user_m->get_username_row("parent", array("username" => $username));
-					$dbuserID = $user->parentID;
 					$dbusertype = $user->usertype;
 					$dbuname = $user->name;
 				}
