@@ -20,8 +20,6 @@ class signin_m extends MY_Model {
 	}	
 	
 	public function signin() {
-		//$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
-		// $tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'setting' => 'setting');
 		$tables = array('student' => 'student', 'teacher' => 'teacher', 'systemadmin' => 'systemadmin');
 		$settings = $this->setting_m->get_setting();
 		$lang = $settings[0]->language;
@@ -71,15 +69,6 @@ class signin_m extends MY_Model {
 				return TRUE;
 			} elseif($userdata->usertype == "Teacher" || $userdata->usertype == "Salesman" || $userdata->usertype == "Receptionist" || $userdata->usertype == "TeacherManager") {
 				
-				//教师类型转换
-				/*if($userdata->teachertype == "2"){					
-					$userdata->usertype = "Salesman";
-				}elseif($userdata->teachertype == "3"){
-					$userdata->usertype = "Receptionist";					
-				}elseif($userdata->teachertype == "4"){
-					$userdata->usertype = "TeacherManager";					
-				}
-				*/
 				$data = array(
 					"loginuserID" => $userdata->teacherID,
 					"name" => $userdata->name,
@@ -105,21 +94,7 @@ class signin_m extends MY_Model {
 				);
 				$this->session->set_userdata($data);
 				return TRUE;
-			} 
-			/*elseif($userdata->usertype == "TeacherManager" || $userdata->usertype == "Salesman" || $userdata->usertype == "Receptionist") {
-				$data = array(
-					"loginuserID" => $userdata->userID,
-					"name" => $userdata->name,
-					"email" => $userdata->email,
-					"usertype" => $userdata->usertype,
-					"username" => $userdata->username,
-					"photo" => $userdata->photo,
-					"lang" => $lang,
-					"loggedin" => TRUE
-				);
-				$this->session->set_userdata($data);
-				return TRUE;
-			} */else {
+			} else {
  				return FALSE;
 			}
 		} else {
@@ -133,11 +108,7 @@ class signin_m extends MY_Model {
 			$table = "systemadmin";
 		}
 
-		if($table == "Receptionist" || $table == "Salesman") {
-			$table = "user";
-		}
-		
-		if($table == "Teacher") {
+		if($table == "Receptionist" || $table == "Salesman" || $userdata->usertype == "TeacherManager" || $userdata->usertype == "Teacher") {
 			$table = "teacher";
 		}
 
@@ -151,7 +122,6 @@ class signin_m extends MY_Model {
 		$old_password = $this->hash($this->input->post('old_password'));
 		$new_password = $this->hash($this->input->post('new_password'));
 
-		//$user = $this->db->get_where($table, array("username" => $username, "password" => $old_password));
 		$user = $this->db->get_where($table, array("email" => $email, "password" => $old_password));
 
 		$alluserdata = $user->row();
@@ -161,7 +131,6 @@ class signin_m extends MY_Model {
 				$array = array(
 					"password" => $new_password
 				);
-			//	$this->db->where(array("username" => $username, "password" => $old_password));
 				$this->db->where(array("email" => $email, "password" => $old_password));
 				$this->db->update($table, $array);
 				$this->session->set_flashdata('success', $this->lang->line('menu_success'));
