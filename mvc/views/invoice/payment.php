@@ -184,7 +184,7 @@ $('#classesID').change(function(event) {
 });
 $(function(){
     $('#payment_class').change(function(){
-        if($(this).val() == '1'){
+        if($(this).val() == '1' || $(this).val() == '2' || $(this).val() == '4'){
             $('#payment_method').val('').prop("disabled", true);
         }else{
             $('#payment_method').prop("disabled", false);

@@ -325,8 +325,15 @@
                         <?php 
                             $payment_details = $this->payment_m->get_order_by_payment(array('invoiceID' => $invoice->invoiceID));
                             $index = 0;
+                            $fee_reduction_view = 0;
+                            $additional_cost_view = 0;
                             foreach ($payment_details as $payment) {
                                 $index++;
+                                if($payment->paymentclass == '1'){
+                                    $fee_reduction_view += $payment->paymentamount;
+                                }elseif($payment->paymentclass == '4'){
+                                    $additional_cost_view += $payment->paymentamount;
+                                }
                             ?>
 		                <tr>
 		                    <td data-title="<?=$this->lang->line('slno')?>">
@@ -364,7 +371,11 @@
 		            <table class="table">
 		                <tr>
                             <th class="col-sm-8 col-xs-8"><?=$this->lang->line('invoice_subtotal')?></th>
-                            <td class="col-sm-4 col-xs-4"><?=$invoice->amount?></td>
+                            <td class="col-sm-4 col-xs-4">
+                                <?php 
+                                    echo $invoice->amount - $fee_reduction_view + $additional_cost_view;
+                                ?>
+                            </td>
 		                </tr>
 		            </table>
                     <?php if(empty($invoice->paidamount) && $invoice->paidamount == 0) { ?>
@@ -392,7 +403,9 @@
                         <table class="table">
                             <tr>
                                 <th class="col-sm-8 col-xs-8"><?=$this->lang->line('invoice_due')." (".$siteinfos->currency_code.")";?></th>
-                                <?php $due = $invoice->amount-$invoice->paidamount; ?>
+                                <?php 
+                                    $due = $invoice->amount - $fee_reduction_view + $additional_cost_view - $invoice->paidamount; 
+                                ?>
                                 <td class="col-sm-4 col-xs-4"><?=$siteinfos->currency_symbol." ".$due?></td>
                             </tr>
                         </table>
