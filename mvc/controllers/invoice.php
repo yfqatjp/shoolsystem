@@ -29,12 +29,20 @@ class Invoice extends Admin_Controller {
 	}
 
 	public function index() {
-		$this->data['date_from'] = '';
-		$this->data['date_to'] = '';
+		if($this->input->post('date_from')){
+			$this->data['date_from'] = $this->input->post('date_from');
+		}else{
+			$this->data['date_from'] = date("Y-m-01", time());
+		}
+		if($this->input->post('date_to')){
+			$this->data['date_to'] = $this->input->post('date_to');
+		}else{
+			$this->data['date_to'] = date("Y-m-t", time());
+		}
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" ) {
-			$this->data['date_from'] = $this->input->post('date_from');
-			$this->data['date_to'] = $this->input->post('date_to');
+			// $this->data['date_from'] = $this->input->post('date_from');
+			// $this->data['date_to'] = $this->input->post('date_to');
 			$this->data['invoices'] = $this->invoice_m->get_invoice_where($this->data['date_from'],$this->data['date_to']);
 			$this->data["subview"] = "invoice/index";
 			$this->load->view('_layout_main', $this->data);
