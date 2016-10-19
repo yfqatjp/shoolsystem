@@ -53,7 +53,6 @@ class Dashboard extends Admin_Controller {
 			$this->data['user'] = $this->systemadmin_m->get_single_systemadmin(array('username'  => $username));
 			$this->data['student'] = $this->student_m->get_student();
 			$this->data['teacher'] = $this->teacher_m->get_teacher();
-			//$this->data['attendance'] = $this->sattendance_m->get_order_by_attendance(array('monthyear' => $monthyear, 'a'.$day => 'P'));
 			$this->data['subject'] = $this->subject_m->get_subject();
 			$this->data['setting'] = $this->setting_m->get_setting(1);
 			$this->data['routines'] = $this->routine_m->get_join_all();
@@ -77,62 +76,6 @@ class Dashboard extends Admin_Controller {
 		$this->data["subview"] = "dashboard/index";
 		$this->load->view('_layout_main', $this->data);
 	}
-
-	public function add_tattendance() {
-		$usertype = $this->session->userdata("usertype");
-		if($usertype == "Teacher" || $usertype == "TeacherManager" || $usertype == "Receptionist" || $usertype == "Salesman") {
-			if($_POST) {
-				$tattendanceType = $this->input->post("tattendance_type");
-				$subjectID = $this->input->post("subjectID");
-				if(!$subjectID){
-					$subjectID = 0;
-				}
-				$date = date("Y-m-d");
-				$this->data['date'] = $date;
-				$explode_date = explode("-", $date);
-				$monthyear = $explode_date[1]."-".$explode_date[0];
-
-				$teacherID = $this->session->userdata("loginuserID");
-				$last_day = cal_days_in_month(CAL_GREGORIAN, $explode_date[1], $explode_date[2]);
-				if($last_day >= $explode_date[1]) {
-					$teacher = $this->teacher_m->get($teacherID);
-					$array = array(
-						"teacherID" => $teacherID,
-						"usertype" => $teacher->usertype,
-						"monthyear" => $monthyear,
-						"date" => date('Y-m-d', strtotime($date)),
-						"start_time" => $this->fixTimeStr($this->input->post("start_time")),
-						"end_time" => $this->fixTimeStr($this->input->post("end_time")),
-						"classesID" => 0,
-						"subjectID" => $subjectID,
-						"sectionID" => 0,
-					);
-					if($tattendanceType){
-						$array["tattendancetype"] = $tattendanceType;
-					}
-					$this->tattendance_m->insert_tattendance($array);
-					echo $this->lang->line('menu_success');
-				} else {
-					$this->data["subview"] = "error";
-					$this->load->view('_layout_main', $this->data);
-				}
-			} else {
-				$this->data["subview"] = "error";
-				$this->load->view('_layout_main', $this->data);
-			}
-		} else {
-			$this->data["subview"] = "error";
-			$this->load->view('_layout_main', $this->data);
-		}
-	}
-
-	private function fixTimeStr($timeStr){
-		if(strlen($timeStr) < 5){
-			return '0'.$timeStr;
-		}
-		return $timeStr;
-	}
-
 
 	//取得课程详细
 	function getRoutine() {
