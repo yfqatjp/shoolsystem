@@ -21,6 +21,26 @@ class Payment_m extends MY_Model {
 		return $query;
 	}
 
+	// public function get_routine_group_by($id, $sectionID = NULL){
+	public function get_groupBypaymentclass($array=NULL){		
+		$this->db->select('paymentclass');
+		$this->db->from('payment');
+		$this->db->where($array);
+		$this->db->group_by('paymentclass');
+		$query = $this->db->get();
+		return $query->result();
+	}	
+
+	public function get_paymentclass_IN($array=NULL){
+		$this->db->select('*');
+		$this->db->from('payment');
+		$this->db->where($array);
+		$this->db->where_in('paymentclass', array('2','3'));
+		$query = $this->db->get();
+		return $query->result();
+	}	
+	
+	
 	function get_single_payment($array=NULL) {
 		$query = parent::get_single($array);
 		return $query;

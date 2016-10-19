@@ -56,9 +56,7 @@
                             <tr>
                                 <th><?=$this->lang->line('slno')?></th>
                                 <th><?=$this->lang->line('invoice_studentName')?></th>
-                                <!-- <th><?=$this->lang->line('invoice_feetype')?></th>  -->
                                 <th><?=$this->lang->line('invoice_pdate')?></th>
-                                <!-- <th><?=$this->lang->line('invoice_status')?></th>  -->
                                 <th><?=$this->lang->line('invoice_paymentmethod')?></th>
                                 <th><?=$this->lang->line('invoice_amount_total')?></th>
                                 <th><?=$this->lang->line('invoice_paid_amount')?></th>
@@ -75,14 +73,20 @@
                                     foreach($invoices as $invoice) {
                                         $sum1 += $invoice->amount;
                                         //非减免取得
-                                        $paid_array = $this->payment_m->get_order_by_payment(array('invoiceID' => $invoice->invoiceID,'paymentclass <> ' => '1'));
+                                        $paid_array = $this->payment_m->get_paymentclass_IN(array('invoiceID' => $invoice->invoiceID));
+                                                                                
                                         //减免取得
-                                        $paid_array_Reduce = $this->payment_m->get_order_by_payment(array('invoiceID' => $invoice->invoiceID,'paymentclass  ' => '1'));
+                                        $paid_array_Reduce = $this->payment_m->get_groupBypaymentclass(array('invoiceID' => $invoice->invoiceID));
                                         
                                         $mark = "";
-                                        
-                                        if(count($paid_array_Reduce) > 0){
-                                        	$mark = "（有减免）";
+
+                                        foreach ($paid_array_Reduce as $payclass) {
+
+                                          if($payclass->paymentclass == '1'){
+                                                  $mark = $mark . "（有减免）";
+                                          }elseif ($payclass->paymentclass == '4'){
+                                          	      $mark = $mark . "（有增加）";
+                                          }
                                         }
                                         
                                         if(!is_array($paid_array)){
