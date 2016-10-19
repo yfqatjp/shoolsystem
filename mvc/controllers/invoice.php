@@ -128,7 +128,7 @@ class Invoice extends Admin_Controller {
 							$rules = $this->payment_rules();
 							if($this->input->post('payment_class')) {
 								// 缴费类型是 减免学费的场合 缴费方式不需要填写
-								if($this->input->post('payment_class') == "1"){
+								if($this->input->post('payment_class') == "1" || $this->input->post('payment_class') == "2" || $this->input->post('payment_class') == "4"){
 									unset($rules[1]);
 								}
 								array_push($rules,array(
@@ -142,8 +142,13 @@ class Invoice extends Admin_Controller {
 								$this->data["subview"] = "invoice/payment";
 								$this->load->view('_layout_main', $this->data);
 							} else {
-
-								$payable_amount = $this->input->post('amount')+$this->data['invoice']->paidamount;
+								if($this->input->post('payment_class') == "3"){
+									$payable_amount = $this->input->post('amount') + $this->data['invoice']->paidamount;
+								}elseif($this->input->post('payment_class') == "2"){
+									$payable_amount = $this->data['invoice']->paidamount - $this->input->post('amount');
+								}else{
+									$payable_amount = $this->data['invoice']->paidamount;
+								}
 								if ($payable_amount > $this->data['invoice']->amount) {
 									//$this->session->set_flashdata('error', 'Payment amount is much than invoice amount');
 									$this->session->set_flashdata('error', $this->lang->line('invoice_payment_error'));
@@ -163,6 +168,8 @@ class Invoice extends Admin_Controller {
 										|| $payment_method == $payment_methods[4]
 										|| $payment_method == $payment_methods[5]
 										|| $this->input->post('payment_class') == "1"
+										|| $this->input->post('payment_class') == "2"
+										|| $this->input->post('payment_class') == "4"
 										) {
 										$status = 0;
 										if($payable_amount == $this->data['invoice']->amount) {
@@ -221,6 +228,12 @@ class Invoice extends Admin_Controller {
 										);
 										if($this->input->post('payment_class') == "1"){
 											$payment_array["paymenttype"] = '减免学费';
+										}
+										if($this->input->post('payment_class') == "2"){
+											$payment_array["paymenttype"] = '退费';
+										}
+										if($this->input->post('payment_class') == "4"){
+											$payment_array["paymenttype"] = '增加费用';
 										}
 
 										$this->payment_m->insert_payment($payment_array);

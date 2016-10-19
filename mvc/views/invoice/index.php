@@ -88,12 +88,29 @@
                                              $test->paymenttype = "";
                                              $test->paymentamount = "0";
                                              $test->principal = "";
+                                             $test->paymentclass = "";
                                              $paid_array = array($test);
                                          }
                                         
                                         }
                                         foreach ($paid_array as $paid) {
-                                            $sum2 += $paid->paymentamount;
+                                            // 减免学费的场合（区分=1）总计金额减少，列表不显示
+                                            if($paid->paymentclass == '1'){
+                                                $sum1 -= $paid->paymentamount;
+                                                continue;
+                                            }
+                                            // 增加费用的场合（区分=4）总计金额增加，列表不显示
+                                            if($paid->paymentclass == '4'){
+                                                $sum1 += $paid->paymentamount;
+                                                continue;
+                                            }
+                                            // 退费的场合（区分=2）从缴费合计中减去退费金额，列表显示
+                                            if($paid->paymentclass == '2'){
+                                                $sum2 -= $paid->paymentamount;
+                                            }else{
+                                                // 普通缴费的场合（区分=3）和其它场合（区分未设定） 计入缴费金额合计，列表显示
+                                                $sum2 += $paid->paymentamount;
+                                            }
                             ?>
                                 <tr>
                                     <td data-title="<?=$this->lang->line('slno')?>">
