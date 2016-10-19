@@ -29,8 +29,7 @@
                     <div class="list-group-item list-group-item-warning">
                         <form style="" class="form-horizontal" role="form" method="post">
                             <div class="form-group">
-                                <label for="date_from" class="col-sm-2 col-sm-offset-2 control-label">
-                                    查询区间
+                                <label for="date_from" class="col-sm-2 col-sm-offset-2 control-label">查询区间
                                 </label>
                                 <div class="col-sm-6">
                                     <div class="input-group">
@@ -75,7 +74,17 @@
                                     $i = 1; 
                                     foreach($invoices as $invoice) {
                                         $sum1 += $invoice->amount;
-                                        $paid_array = $this->payment_m->get_order_by_payment(array('invoiceID' => $invoice->invoiceID));
+                                        //非减免取得
+                                        $paid_array = $this->payment_m->get_order_by_payment(array('invoiceID' => $invoice->invoiceID,'paymentclass <> ' => '1'));
+                                        //减免取得
+                                        $paid_array_Reduce = $this->payment_m->get_order_by_payment(array('invoiceID' => $invoice->invoiceID,'paymentclass  ' => '1'));
+                                        
+                                        $mark = "";
+                                        
+                                        if(count($paid_array_Reduce) > 0){
+                                        	$mark = "（有减免）";
+                                        }
+                                        
                                         if(!is_array($paid_array)){
                                             $paid_array = array($paid_array);
                                         }
@@ -94,23 +103,8 @@
                                         
                                         }
                                         foreach ($paid_array as $paid) {
-                                            // 减免学费的场合（区分=1）总计金额减少，列表不显示
-                                            if($paid->paymentclass == '1'){
-                                                $sum1 -= $paid->paymentamount;
-                                                continue;
-                                            }
-                                            // 增加费用的场合（区分=4）总计金额增加，列表不显示
-                                            if($paid->paymentclass == '4'){
-                                                $sum1 += $paid->paymentamount;
-                                                continue;
-                                            }
-                                            // 退费的场合（区分=2）从缴费合计中减去退费金额，列表显示
-                                            if($paid->paymentclass == '2'){
-                                                $sum2 -= $paid->paymentamount;
-                                            }else{
-                                                // 普通缴费的场合（区分=3）和其它场合（区分未设定） 计入缴费金额合计，列表显示
-                                                $sum2 += $paid->paymentamount;
-                                            }
+                                           $sum2 += $paid->paymentamount;
+
                             ?>
                                 <tr>
                                     <td data-title="<?=$this->lang->line('slno')?>">
@@ -155,7 +149,7 @@
                                     </td>
 
                                     <td data-title="<?=$this->lang->line('invoice_amount_total')?>">
-                                        <?php echo $siteinfos->currency_symbol. $invoice->amount; ?>
+                                        <?php echo $siteinfos->currency_symbol. $invoice->amount . $mark; ?>
                                     </td>
 
                                     <td data-title="<?=$this->lang->line('invoice_paid_amount')?>">
@@ -227,20 +221,5 @@
             autoclose: true
         }
     );
-    // $('#classesID').change(function() {
-    //     var classesID = $(this).val();
-    //     if(classesID == 0) {
-    //         $('#hide-table').hide();
-    //     } else {
-    //         $.ajax({
-    //             type: 'POST',
-    //             url: "<?=base_url('setfee/setfee_list')?>",
-    //             data: "id=" + classesID,
-    //             dataType: "html",
-    //             success: function(data) {
-    //                 window.location.href = data;
-    //             }
-    //         });
-    //     }
-    // });
+
 </script>

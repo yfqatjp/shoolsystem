@@ -81,19 +81,9 @@
             <div class="panel-body profile-view-dis">
                 <h1><?=$this->lang->line("personal_information")?></h1>
                 <div class="row">
-                   <!-- <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_roll")?> </span>: <?=$student->roll?></p>
-                    </div>
-                    <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_section")?> </span>: <?php if(count($section)) { echo $section->section;} else { echo $student->section;}?></p>
-                    </div> -->
                     <div class="profile-view-tab">
                         <p><span><?=$this->lang->line("student_sex")?> </span>: <?=$student->sex?></p>
                     </div>
-                    <!-- <div class="profile-view-tab">
-                        <p><span><?=$this->lang->line("student_dob")?> </span>: <?=date("Y-m-d", strtotime($student->dob))?></p>
-                    </div> -->
-
                     <div class="profile-view-tab">
                         <p><span><?=$this->lang->line("student_wechat")?> </span>: <?=$student->wechat?></p>
                     </div>
@@ -183,11 +173,8 @@
                               <a id ="evaluation_<?php echo $i; ?>_<?php echo $evaluation->evaluationID; ?>" class='btn btn-warning btn-xs mrg edit_evaluation_btn'  data-target="#add_evaluation"  data-placement='top' data-toggle='modal' data-whatever="<?php echo  $evaluation->evaluationID ?>>" ><i class='fa fa-edit'></i></a>
 
                               <?php
-                                // echo btn_edit('student/edit/'.$student->studentID."/".$set, $this->lang->line('edit'));
                                  echo btn_delete('student/deleteEvaluation/'.$student->studentID."/".$set."/".$evaluation->evaluationID, $this->lang->line('delete'));
                               ?>
- <!--                              <a id ="evaluation_<?php echo $i; ?>" class='btn btn-warning btn-xs mrg edit_evaluation_btn' data-placement='top' data-toggle='tooltip' data-original-title='编辑'><i class='fa fa-edit'></i></a>
-   -->
 
                           </td>
 					    </tr>
@@ -329,11 +316,12 @@
                             $additional_cost_view = 0;
                             foreach ($payment_details as $payment) {
                                 $index++;
+                                /*
                                 if($payment->paymentclass == '1'){
                                     $fee_reduction_view += $payment->paymentamount;
                                 }elseif($payment->paymentclass == '4'){
                                     $additional_cost_view += $payment->paymentamount;
-                                }
+                                }*/
                             ?>
 		                <tr>
 		                    <td data-title="<?=$this->lang->line('slno')?>">
@@ -373,7 +361,8 @@
                             <th class="col-sm-8 col-xs-8"><?=$this->lang->line('invoice_subtotal')?></th>
                             <td class="col-sm-4 col-xs-4">
                                 <?php 
-                                    echo $invoice->amount - $fee_reduction_view + $additional_cost_view;
+                                   // echo $invoice->amount - $fee_reduction_view + $additional_cost_view;
+                                      echo $invoice->amount;
                                 ?>
                             </td>
 		                </tr>
@@ -496,75 +485,6 @@
     </div>
     <!-- Modal content End here -->
 
-<!-- email modal starts here -->
-<form class="form-horizontal" role="form" action="<?=base_url('student/send_mail');?>" method="post">
-    <div class="modal fade" id="mail">
-      <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title"><?=$this->lang->line('mail')?></h4>
-            </div>
-            <div class="modal-body">
-
-                <?php
-                    if(form_error('to'))
-                        echo "<div class='form-group has-error' >";
-                    else
-                        echo "<div class='form-group' >";
-                ?>
-                    <label for="to" class="col-sm-2 control-label">
-                        <?=$this->lang->line("to")?>
-                    </label>
-                    <div class="col-sm-6">
-                        <input type="email" class="form-control" id="to" name="to" value="<?=set_value('to')?>" >
-                    </div>
-                    <span class="col-sm-4 control-label" id="to_error">
-                    </span>
-                </div>
-
-                <?php
-                    if(form_error('subject'))
-                        echo "<div class='form-group has-error' >";
-                    else
-                        echo "<div class='form-group' >";
-                ?>
-                    <label for="subject" class="col-sm-2 control-label">
-                        <?=$this->lang->line("subject")?>
-                    </label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" id="subject" name="subject" value="<?=set_value('subject')?>" >
-                    </div>
-                    <span class="col-sm-4 control-label" id="subject_error">
-                    </span>
-
-                </div>
-
-                <?php
-                    if(form_error('message'))
-                        echo "<div class='form-group has-error' >";
-                    else
-                        echo "<div class='form-group' >";
-                ?>
-                    <label for="message" class="col-sm-2 control-label">
-                        <?=$this->lang->line("message")?>
-                    </label>
-                    <div class="col-sm-6">
-                        <textarea class="form-control" id="message" style="resize: vertical;" name="message" value="<?=set_value('message')?>" ></textarea>
-                    </div>
-                </div>
-
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" style="margin-bottom:0px;" data-dismiss="modal"><?=$this->lang->line('close')?></button>
-                <input type="button" id="send_pdf" class="btn btn-success" value="<?=$this->lang->line("send")?>" />
-            </div>
-        </div>
-      </div>
-    </div>
-</form>
-<!-- email end here -->
 
 
 <!-- add_evaluation modal starts here -->

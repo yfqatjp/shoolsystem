@@ -74,11 +74,7 @@
                         <div class="col-sm-6">
                             <?php
                                 $array = $this->session->userdata("paymentMethod");
-                                // $array = array('0' => $this->lang->line("invoice_select_paymentmethod"));
-                                // $array['Cash'] = $this->lang->line('invoice_cash');
-								// $array['Cheque'] = $this->lang->line('invoice_cheque');
-								// $array['Paypal'] = $this->lang->line('invoice_paypal');
-                                // $array['Reduce'] = $this->lang->line('invoice_reduce');
+
                                 echo form_dropdown("payment_method", $array, set_value("payment_method", $paymenttype), "id='payment_method' class='form-control'");
                             ?>
                         </div>

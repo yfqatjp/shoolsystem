@@ -26,7 +26,6 @@ class Invoice extends Admin_Controller {
 		$this->load->model("payment_settings_m");
 		$language = $this->session->userdata('lang');
 		$this->lang->load('invoice', $language);
-	//	require_once(APPPATH."libraries/Omnipay/vendor/autoload.php");
 	}
 
 	public function index() {
@@ -142,12 +141,28 @@ class Invoice extends Admin_Controller {
 								$this->data["subview"] = "invoice/payment";
 								$this->load->view('_layout_main', $this->data);
 							} else {
-								if($this->input->post('payment_class') == "3"){
-									$payable_amount = $this->input->post('amount') + $this->data['invoice']->paidamount;
+								
+								// 1 减免学费
+								// 2 退费
+								// 3 普通缴费
+								// 4 增加费用
+								$amount = $this->data['invoice']->amount;
+								$payable_amount = $this->data['invoice']->paidamount;
+								if($this->input->post('payment_class') == "1"){
+									//减免学费
+									$amount =  $this->data['invoice']->amount - $this->input->post('amount');
 								}elseif($this->input->post('payment_class') == "2"){
-									$payable_amount = $this->data['invoice']->paidamount - $this->input->post('amount');
+									//退费
+									//$payable_amount = $this->data['invoice']->paidamount - $this->input->post('amount');
+									$payable_amount = $this->input->post('amount') + $this->data['invoice']->paidamount;
+								}																															
+								elseif($this->input->post('payment_class') == "3"){
+									//普通缴费
+									$payable_amount = $this->input->post('amount') + $this->data['invoice']->paidamount;
 								}else{
-									$payable_amount = $this->data['invoice']->paidamount;
+									//$payable_amount = $this->data['invoice']->paidamount;
+									//减免学费
+									$amount =  $this->data['invoice']->amount + $this->input->post('amount');
 								}
 								if ($payable_amount > $this->data['invoice']->amount) {
 									//$this->session->set_flashdata('error', 'Payment amount is much than invoice amount');
@@ -156,13 +171,7 @@ class Invoice extends Admin_Controller {
 									redirect(base_url("invoice/payment/$id"));
 								} else {
 									$this->post_data = $this->input->post();
-									if ($payment_method == 'Paypal') {
-										$get_configs = $this->payment_settings_m->get_order_by_config();
-										$this->post_data['id'] = $this->uri->segment(3);
-										$this->invoice_data = $this->invoice_m->get_invoice($this->post_data['id']);
-										$this->Paypal();
-									} elseif(
-										$payment_method == $payment_methods[1] 
+									if($payment_method == $payment_methods[1] 
 										|| $payment_method == $payment_methods[2]
 										|| $payment_method == $payment_methods[3]
 										|| $payment_method == $payment_methods[4]
@@ -205,6 +214,7 @@ class Invoice extends Admin_Controller {
 										}
 
 										$array = array(
+											"amount" => $amount,
 											"paidamount" => $payable_amount,
 											"status" => $status,
 											"paymenttype" => $nowpaymenttype,
@@ -240,8 +250,9 @@ class Invoice extends Admin_Controller {
 
 										$studentID = $this->data['invoice']->studentID;
 										$getstudent = $this->student_m->get_student($studentID);
-										$nowamount = ($getstudent->paidamount)+($this->input->post('amount'));
-										$this->student_m->update_student(array('paidamount' => $nowamount), $studentID);
+										//$nowamount = ($getstudent->paidamount)+($this->input->post('amount'));
+										
+										$this->student_m->update_student(array('totalamount' => $amount,'paidamount' => $payable_amount), $studentID);
 
 										$this->invoice_m->update_invoice($array, $id);
 										$this->session->set_flashdata('success', $this->lang->line('menu_success'));
@@ -250,72 +261,6 @@ class Invoice extends Admin_Controller {
 										$classesID = $this->data['invoice']->classesID;
 										redirect(base_url("student/view/$studentID/$classesID"));
 										
-									} elseif($payment_method == 'Cheque') {
-										$status = 0;
-										if($payable_amount == $this->data['invoice']->amount) {
-											$status = 2;
-										} else {
-											$status = 1;
-										}
-										$username = $this->session->userdata('username');
-										$dbuserID = 0;
-										$dbusertype = '';
-										$dbuname = '';
-										if($usertype == "Admin") {
-											$user = $this->user_m->get_username_row("systemadmin", array("username" => $username));
-											$dbuserID = $user->systemadminID;
-											$dbusertype = $user->usertype;
-											$dbuname = $user->name;
-										} 
-
-										$nowpaymenttype = '';
-										if(empty($this->data['invoice']->paymenttype)) {
-											$nowpaymenttype = 'Cheque';
-										} else {
-											if($this->data['invoice']->paymenttype == 'Cheque') {
-												$nowpaymenttype = 'Cheque';
-											} else {
-												$exp = explode(',', $this->data['invoice']->paymenttype);
-												if(!in_array('Cheque', $exp)) {
-													$nowpaymenttype =  $this->data['invoice']->paymenttype.','.'Cheque';
-												} else {
-													$nowpaymenttype =  $this->data['invoice']->paymenttype;
-												}
-											}
-										}
-
-										$array = array(
-											"paidamount" => $payable_amount,
-											"status" => $status,
-											"paymenttype" => $nowpaymenttype,
-											"paiddate" => date('Y-m-d'),
-											"userID" => $dbuserID,
-											"usertype" => $dbusertype,
-											'uname' => $dbuname
-										);
-
-										$payment_array = array(
-											"invoiceID" => $id,
-											"studentID"	=> $this->data['invoice']->studentID,
-											"paymentamount" => $this->input->post('amount'),
-											"paymenttype" => $payment_method,
-											"paymentdate" => date('Y-m-d'),
-											"paymentmonth" => date('M'),
-											"paymentyear" => date('Y')
-										);
-
-										$this->payment_m->insert_payment($payment_array);
-
-										$studentID = $this->data['invoice']->studentID;
-										$getstudent = $this->student_m->get_student($studentID);
-										$nowamount = ($getstudent->paidamount)+($this->input->post('amount'));
-										$this->student_m->update_student(array('paidamount' => $nowamount), $studentID);
-
-										$this->invoice_m->update_invoice($array, $id);
-										$this->session->set_flashdata('success', $this->lang->line('menu_success'));
-										//redirect(base_url("invoice/view/$id"));
-										$classesID = $this->data['invoice']->classesID;
-										redirect(base_url("student/view/$studentID/$classesID"));										
 									} else {
 										$this->data["subview"] = "invoice/payment";
 										$this->load->view('_layout_main', $this->data);
