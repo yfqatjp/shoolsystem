@@ -698,6 +698,9 @@ class Student extends Admin_Controller {
 									if($invoiceID){
 										$fee_remission_amount = $this->input->post("fee_remission_amount");	
 										if($fee_remission_amount){
+											
+											$amount =  $amount - $fee_remission_amount;
+											
 											$fee_remission_note = $this->input->post("fee_remission_note");
 											$payment_array = array(
 												"invoiceID" => $invoiceID,
@@ -713,9 +716,11 @@ class Student extends Admin_Controller {
 											);
 
 											$this->payment_m->insert_payment($payment_array);
-											$this->student_m->update_student(array('paidamount' => $fee_remission_amount), $getstudent->studentID);
+											
+											$this->student_m->update_student(array('totalamount' => $amount), $getstudent->studentID);
+											
 											$array = array(
-												"paidamount" => $payable_amount,
+												"amount" => $amount,
 												"paiddate" => date('Y-m-d')
 											);
 											$this->invoice_m->update_invoice($array, $invoiceID);
