@@ -28,7 +28,7 @@ class Dashboard extends Admin_Controller {
 		$this->load->model("subject_m");
 		$this->load->model("feetype_m");
 		$this->load->model("invoice_m");
-		$this->load->model("expense_m");
+		//$this->load->model("expense_m");
 		$this->load->model("payment_m");
 		$this->load->model("student_info_m");
 		$this->load->model('routine_m');
