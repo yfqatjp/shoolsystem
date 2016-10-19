@@ -95,7 +95,7 @@ class Invoice extends Admin_Controller {
 				array(
 					'field' => 'amount',
 					'label' => $this->lang->line("invoice_amount"),
-					'rules' => 'trim|required|xss_clean|max_length[11]|numeric|callback_valid_number'
+					'rules' => 'trim|required|xss_clean|max_length[11]|numeric|callback_valid_number|callback_valid_amount'
 				),
 				array(
 					'field' => 'payment_method',
@@ -354,6 +354,14 @@ class Invoice extends Admin_Controller {
 		// if($this->input->post('amount') && $this->input->post('amount') < 0) {
 		if($this->input->post('amount') && !is_numeric($this->input->post('amount'))) {
 			$this->form_validation->set_message("valid_number", "%s 是无效的数字");
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	function valid_amount(){
+		if($this->input->post('amount') && $this->data['invoice'] && $this->data['invoice']->amount < $this->input->post('amount')) {
+			$this->form_validation->set_message("valid_amount", "%s 减免学费不能大于总费用");
 			return FALSE;
 		}
 		return TRUE;
