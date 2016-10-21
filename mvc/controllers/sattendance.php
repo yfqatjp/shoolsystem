@@ -87,7 +87,7 @@ class Sattendance extends Admin_Controller {
 			$id = htmlentities(mysql_real_escape_string($this->uri->segment(3)));
 			$this->data['subject_group'] = htmlentities(mysql_real_escape_string($this->uri->segment(4)));
 			$this->data['subjectID'] = $id;
-			$this->data['code_list'] = $this->code_m->get_order_by_code(array('loadflag'=>"1"));
+			$this->data['code_list'] = $this->code_m->get_order_by_code(array('loadflag'=>"1",'codeName'=>"subjectGroup"));
 			if($this->data['subject_group']){
 				$this->data['subjects'] = $this->subject_m->get_order_by_subject(array("subjectGroup" => $this->data['subject_group']));
 			}else{
@@ -128,7 +128,7 @@ class Sattendance extends Admin_Controller {
 			$this->data['classes'] = $this->classes_m->get_classes_1();
 			$this->data['students'] = array();
 			$classesID = $this->input->post("classesID");
-			$this->data['code_list'] = $this->code_m->get_order_by_code(array('loadflag'=>"1"));
+			$this->data['code_list'] = $this->code_m->get_order_by_code(array('loadflag'=>"1",'codeName'=>"subjectGroup"));
 			$this->data['subject_group'] = 0;
 
 			if($this->data['setting']->attendance == "subject") {

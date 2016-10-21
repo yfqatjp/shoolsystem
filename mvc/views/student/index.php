@@ -100,6 +100,12 @@
                                                           <td data-title="<?=$this->lang->line('student_source')?>">
                                                               <?php
                                                               $studentSource = $this->session->userdata("studentSource");
+                                                              
+                                                            //  $studentSource =  array_merge ( $studentSource,$code_list );
+                                    		                foreach ($this->code_m->getcodeToArray(array('codeName'=>'studentSource', 'loadflag' => '1')) as $key => $value) {
+									                               $studentSource[$key] = $value;
+							                                 }
+                                                              
                                                               $memo = "";
                                                               if($student->source_memo != null && $student->source_memo != ""){
                                                                   $studentSourcePartner = $this->session->userdata("studentSourcePartner"); 

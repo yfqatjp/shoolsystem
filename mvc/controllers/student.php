@@ -55,7 +55,8 @@ class Student extends Admin_Controller {
 			$querystring = $this->session->userdata("querystring");
 			$salesman_list = $this->session->userdata("salesman_list");
 			$class_list = $this->session->userdata("class_list");
-									
+			//$this->data['studentSource_list'] = $this->code_m->get_order_by_code(array('loadflag'=>"1",'codeName'=>"studentSource"));
+			
 			if((int)$id) {
 				$this->data['set'] = $id;
 				$this->data['category'] = $category;
@@ -137,7 +138,7 @@ class Student extends Admin_Controller {
 			array(
 				'field' => 'wechat',
 				'label' => $this->lang->line("student_wechat"),
-				'rules' => 'trim|max_length[10]|xss_clean'
+				'rules' => 'trim|max_length[20]|xss_clean'
 			),
 			array(
 				'field' => 'email',
