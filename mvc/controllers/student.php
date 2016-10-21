@@ -534,16 +534,22 @@ class Student extends Admin_Controller {
 									'rules' => 'trim|required|max_length[10]|callback_date_valid|xss_clean'
 								),
 								array(
-									'field' => 'amount',
-									'label' => $this->lang->line("student_amount"),
-									'rules' => 'trim|required|numeric|xss_clean'
-								),
-								array(
 									'field' => 'fee_remission_amount',
 									'label' => $this->lang->line("student_fee_remission"),
 									'rules' => 'trim|numeric|xss_clean'
 								)
 							);
+							
+							if(isset($state) && $state == "join"){
+								array_push($rules,array(
+								'field' => 'amount',
+								'label' => $this->lang->line("student_amount"),
+								'rules' => 'trim|required|numeric|xss_clean'
+								)
+								);									
+							}
+							
+							
 							if($this->input->post("fee_remission_amount")){
 								array_push($rules,array(
 										'field' => 'fee_remission_note',

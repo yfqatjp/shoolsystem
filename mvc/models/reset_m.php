@@ -105,7 +105,7 @@ class reset_m extends CI_Model {
 	public function resetURLSend($email,$template = "RESETPWD"){
 		$i = 0;
 		$siteinfo = $this->get_admin();
-		$tables = array('student' => 'student', 'parent' => 'parent', 'teacher' => 'teacher', 'user' => 'user', 'systemadmin' => 'systemadmin');
+		$tables = array('student' => 'student',  'teacher' => 'teacher',  'systemadmin' => 'systemadmin');
 		foreach ($tables as $table) {
 			$dbuser = $this->get_table_users($table, $email);
 			if(count($dbuser)) {
@@ -171,15 +171,17 @@ class reset_m extends CI_Model {
 				$message = $this->parser->parse('template/mail/activeuser', $data, TRUE);
 			}
 				
-			 
-
 	
 			$this->email->message($message);
-			 
+
+			//$this->email->send();
+			//echo $this->email->print_debugger();
+			
 			if($this->email->send()) {
 				return 1;//发送成功
 				 
 			} else {
+				
 				return 2; //发送失败
 			}
 		} else {
