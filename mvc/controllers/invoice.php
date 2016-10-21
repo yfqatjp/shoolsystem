@@ -29,12 +29,20 @@ class Invoice extends Admin_Controller {
 	}
 
 	public function index() {
-		$this->data['date_from'] = '';
-		$this->data['date_to'] = '';
+		if($this->input->post('date_from')){
+			$this->data['date_from'] = $this->input->post('date_from');
+		}else{
+			$this->data['date_from'] = date("Y-m-01", time());
+		}
+		if($this->input->post('date_to')){
+			$this->data['date_to'] = $this->input->post('date_to');
+		}else{
+			$this->data['date_to'] = date("Y-m-t", time());
+		}
 		$usertype = $this->session->userdata("usertype");
 		if($usertype == "Admin" ) {
-			$this->data['date_from'] = $this->input->post('date_from');
-			$this->data['date_to'] = $this->input->post('date_to');
+			// $this->data['date_from'] = $this->input->post('date_from');
+			// $this->data['date_to'] = $this->input->post('date_to');
 			$this->data['invoices'] = $this->invoice_m->get_invoice_where($this->data['date_from'],$this->data['date_to']);
 			$this->data["subview"] = "invoice/index";
 			$this->load->view('_layout_main', $this->data);
@@ -87,7 +95,7 @@ class Invoice extends Admin_Controller {
 				array(
 					'field' => 'amount',
 					'label' => $this->lang->line("invoice_amount"),
-					'rules' => 'trim|required|xss_clean|max_length[11]|numeric|callback_valid_number'
+					'rules' => 'trim|required|xss_clean|max_length[11]|numeric|callback_valid_number|callback_valid_amount'
 				),
 				array(
 					'field' => 'payment_method',
@@ -346,6 +354,14 @@ class Invoice extends Admin_Controller {
 		// if($this->input->post('amount') && $this->input->post('amount') < 0) {
 		if($this->input->post('amount') && !is_numeric($this->input->post('amount'))) {
 			$this->form_validation->set_message("valid_number", "%s 是无效的数字");
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	function valid_amount(){
+		if($this->input->post('amount') && $this->data['invoice'] && $this->data['invoice']->amount < $this->input->post('amount')) {
+			$this->form_validation->set_message("valid_amount", "%s 减免学费不能大于总费用");
 			return FALSE;
 		}
 		return TRUE;
